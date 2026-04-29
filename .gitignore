@@ -34,3 +34,4 @@ app/build/generated/
 app/build/extracted-include-protos/
 app/build/outputs/logs/
 app/build/outputs/apk/**/output-metadata.json
+freemote_icons/vd-tool/
