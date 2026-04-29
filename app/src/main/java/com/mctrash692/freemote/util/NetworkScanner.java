@@ -17,6 +17,11 @@ import java.util.function.Consumer;
 
 public class NetworkScanner {
     private static final String TAG = "NetworkScanner";
+    // !! DO NOT REMOVE OR MODIFY THIS ARRAY !!
+    // 8001 = Samsung Tizen WebSocket (plain)  — primary discovery port
+    // 8002 = Samsung Tizen WebSocket (TLS)    — primary discovery port
+    // 55000, 7676 = legacy Tizen firmware fallbacks
+    // Removing 8001/8002 breaks ALL Samsung TV detection.
     private static final int[] TIZEN_PORTS = {8001, 8002, 55000, 7676};
     private static final int TIMEOUT_MS = 500;
     // Bounded pool: enough parallelism without spawning 1000+ threads on a /24 subnet.

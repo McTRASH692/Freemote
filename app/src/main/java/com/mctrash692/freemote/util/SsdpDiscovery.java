@@ -37,7 +37,7 @@ public class SsdpDiscovery {
 
     private DatagramSocket socket;
     private Thread discoveryThread;
-    private boolean isRunning = false;
+    private volatile boolean isRunning = false;
     private final Consumer<TvDevice> onDeviceFound;
     private final Handler mainHandler;
     private final Set<String> processedIps = new HashSet<>();
@@ -81,10 +81,7 @@ public class SsdpDiscovery {
                         if (isSamsungTv(response) && !processedIps.contains(ip)) {
                             processedIps.add(ip);
 
-                            // First try to get name from HTTP API
                             String tvName = getTvNameFromApi(ip);
-                            
-                            // If API fails, fall back to SSDP name extraction
                             if (tvName == null || tvName.isEmpty()) {
                                 tvName = extractTvNameFromSsdp(response, ip);
                             }
@@ -116,28 +113,28 @@ public class SsdpDiscovery {
     }
 
     private String getTvNameFromApi(String ip) {
-        // Try port 8001 first (API usually on 8001)
         int[] ports = {8001, 8002};
-        
+
         for (int port : ports) {
             HttpURLConnection conn = null;
+            // FIX (bug 11): declare reader outside the if-block so it is always closed.
+            BufferedReader reader = null;
             try {
                 URL url = new URL("http://" + ip + ":" + port + "/api/v2/");
                 conn = (HttpURLConnection) url.openConnection();
                 conn.setRequestMethod("GET");
                 conn.setConnectTimeout(1000);
                 conn.setReadTimeout(1000);
-                
+
                 int responseCode = conn.getResponseCode();
                 if (responseCode == 200) {
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                    reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
                     StringBuilder response = new StringBuilder();
                     String line;
                     while ((line = reader.readLine()) != null) {
                         response.append(line);
                     }
-                    reader.close();
-                    
+
                     JSONObject json = new JSONObject(response.toString());
                     String name = json.optString("name", null);
                     if (name == null || name.isEmpty()) {
@@ -149,7 +146,7 @@ public class SsdpDiscovery {
                             }
                         }
                     }
-                    
+
                     if (name != null && !name.isEmpty() && !name.equals("null")) {
                         Log.d(TAG, "Got TV name from API: " + name);
                         return name;
@@ -158,6 +155,10 @@ public class SsdpDiscovery {
             } catch (Exception e) {
                 Log.d(TAG, "API query failed for port " + port + ": " + e.getMessage());
             } finally {
+                // FIX (bug 11): always close reader if it was opened.
+                if (reader != null) {
+                    try { reader.close(); } catch (IOException ignored) {}
+                }
                 if (conn != null) {
                     conn.disconnect();
                 }
@@ -167,8 +168,6 @@ public class SsdpDiscovery {
     }
 
     private String extractTvNameFromSsdp(String response, String ip) {
-        // Priority order for name sources from SSDP
-        
         Pattern friendlyPattern = Pattern.compile("FRIENDLY\\.NAME:\\s*(.+?)(?:\\r?\\n|$)", Pattern.CASE_INSENSITIVE);
         Matcher friendlyMatcher = friendlyPattern.matcher(response);
         if (friendlyMatcher.find()) {
@@ -222,9 +221,7 @@ public class SsdpDiscovery {
     private int findWorkingPort(String ip) {
         int[] ports = {8001, 8002};
         for (int port : ports) {
-            if (checkPort(ip, port)) {
-                return port;
-            }
+            if (checkPort(ip, port)) return port;
         }
         return -1;
     }

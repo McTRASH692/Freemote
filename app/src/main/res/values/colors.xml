@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Theme 1: Original (Dark Purple + Green) -->
-    <color name="theme1_bg_dark">#0D1B2A</color>
-    <color name="theme1_bg_medium">#1A2744</color>
-    <color name="theme1_accent">#66BB6A</color>
+    <color name="theme1_bg_dark">#000000</color>
+    <color name="theme1_bg_medium">#1A0D33</color>
+    <color name="theme1_accent">#00FF00</color>
     <color name="theme1_text">#FFFFFF</color>
-    <color name="theme1_button">#1A2744</color>
+    <color name="theme1_button">#1A0D33</color>
 
     <!-- Theme 2: Cyberpunk (Neon Blue + Black) -->
-    <color name="theme2_bg_dark">#0A0A0A</color>
-    <color name="theme2_bg_medium">#1A1A2E</color>
-    <color name="theme2_accent">#00D4FF</color>
+    <color name="theme2_bg_dark">#000000</color>
+    <color name="theme2_bg_medium">#000000</color>
+    <color name="theme2_accent">#FF00FF</color>
     <color name="theme2_text">#FFFFFF</color>
-    <color name="theme2_button">#16213E</color>
+    <color name="theme2_button">#0000FF</color>
 
     <!-- Theme 3: Sunset (Orange + Purple) -->
     <color name="theme3_bg_dark">#1A0B1A</color>
@@ -38,7 +38,7 @@
     <!-- Theme 6: Amoled Red -->
     <color name="theme6_bg_dark">#000000</color>
     <color name="theme6_bg_medium">#1A0000</color>
-    <color name="theme6_accent">#FF1744</color>
+    <color name="theme6_accent">#FF0000</color>
     <color name="theme6_text">#FFFFFF</color>
     <color name="theme6_button">#2A0000</color>
 
@@ -57,11 +57,11 @@
     <color name="theme8_button">#E0E0E0</color>
 
     <!-- Theme 9: Light - Warm Paper -->
-    <color name="theme9_bg_dark">#FFF8F0</color>
-    <color name="theme9_bg_medium">#FFFFFF</color>
-    <color name="theme9_accent">#E65100</color>
-    <color name="theme9_text">#2E1A00</color>
-    <color name="theme9_button">#FFE0C2</color>
+    <color name="theme9_bg_dark">#000000</color>
+    <color name="theme9_bg_medium">#000000</color>
+    <color name="theme9_accent">#FFFF00</color>
+    <color name="theme9_text">#FFFFFF</color>
+    <color name="theme9_button">#00FF00</color>
 
     <!-- Theme 10: Purple Haze -->
     <color name="theme10_bg_dark">#120A1E</color>

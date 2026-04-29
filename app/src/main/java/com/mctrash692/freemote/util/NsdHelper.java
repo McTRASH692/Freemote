@@ -34,15 +34,24 @@ public class NsdHelper {
     private final Map<String, NsdManager.DiscoveryListener> samsungListeners = new HashMap<>();
     private final Set<String> discoveredDeviceKeys = new HashSet<>();
 
-    // Queued resolver: NsdManager only supports one concurrent resolveService call.
-    // On API 34 calling it with overlapping listeners causes FAILURE_ALREADY_ACTIVE.
-    private final Queue<NsdServiceInfo> resolveQueue = new ArrayDeque<>();
+    // FIX (bug 9): queue pairs of (ServiceInfo, Type) so the type is preserved
+    // for every item, regardless of which listener is currently draining.
+    private static final class ResolveEntry {
+        final NsdServiceInfo info;
+        final TvDevice.Type  type;
+        ResolveEntry(NsdServiceInfo info, TvDevice.Type type) {
+            this.info = info;
+            this.type = type;
+        }
+    }
+
+    private final Queue<ResolveEntry> resolveQueue = new ArrayDeque<>();
     private boolean resolving = false;
 
     private NsdManager.DiscoveryListener androidTvListener;
 
     public NsdHelper(Context context, Consumer<TvDevice> onDeviceFound) {
-        this.nsdManager = (NsdManager) context.getSystemService(Context.NSD_SERVICE);
+        this.nsdManager    = (NsdManager) context.getSystemService(Context.NSD_SERVICE);
         this.onDeviceFound = onDeviceFound;
     }
 
@@ -89,7 +98,11 @@ public class NsdHelper {
 
             @Override public void onServiceLost(NsdServiceInfo info) {
                 Log.d(TAG, "Service lost: " + info.getServiceName());
-                discoveredDeviceKeys.remove(info.getServiceName());
+                // Key must match the ip:port key inserted in onServiceResolved.
+                // We don't have the resolved IP here, so just clear the whole set;
+                // the next resolution will re-populate it correctly.
+                // (Removing by serviceName was a bug — that key was never in the set.)
+                discoveredDeviceKeys.clear();
             }
 
             @Override public void onDiscoveryStopped(String serviceType) {
@@ -106,44 +119,44 @@ public class NsdHelper {
         };
     }
 
-    // Queue service infos and resolve them one at a time to avoid FAILURE_ALREADY_ACTIVE on API 34.
     private void enqueueResolve(NsdServiceInfo info, TvDevice.Type type) {
         synchronized (resolveQueue) {
-            resolveQueue.add(info);
+            resolveQueue.add(new ResolveEntry(info, type));
             if (!resolving) {
-                drainQueue(type);
+                drainQueue();
             }
         }
     }
 
-    private void drainQueue(TvDevice.Type type) {
+    private void drainQueue() {
         synchronized (resolveQueue) {
-            NsdServiceInfo next = resolveQueue.poll();
-            if (next == null) {
+            ResolveEntry entry = resolveQueue.poll();
+            if (entry == null) {
                 resolving = false;
                 return;
             }
             resolving = true;
-            nsdManager.resolveService(next, new NsdManager.ResolveListener() {
+            // FIX (bug 9): each entry carries its own type — no type argument needed.
+            nsdManager.resolveService(entry.info, new NsdManager.ResolveListener() {
                 @Override public void onResolveFailed(NsdServiceInfo info, int errorCode) {
                     Log.e(TAG, "Resolve failed: " + info.getServiceName() + " error=" + errorCode);
-                    drainQueue(type);
+                    drainQueue();
                 }
 
                 @Override public void onServiceResolved(NsdServiceInfo info) {
-                    String ip = info.getHost().getHostAddress();
-                    int port = info.getPort();
-                    String name = info.getServiceName();
+                    String ip        = info.getHost().getHostAddress();
+                    int    port      = info.getPort();
+                    String name      = info.getServiceName();
                     String uniqueKey = ip + ":" + port;
 
                     if (!discoveredDeviceKeys.contains(uniqueKey)) {
                         discoveredDeviceKeys.add(uniqueKey);
                         Log.d(TAG, "Resolved: " + name + " @ " + ip + ":" + port);
-                        onDeviceFound.accept(new TvDevice(name, ip, port, type));
+                        onDeviceFound.accept(new TvDevice(name, ip, port, entry.type));
                     } else {
                         Log.d(TAG, "Duplicate ignored: " + name + " @ " + uniqueKey);
                     }
-                    drainQueue(type);
+                    drainQueue();
                 }
             });
         }

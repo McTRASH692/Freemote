@@ -81,6 +81,10 @@
             android:exported="false"
             android:theme="@style/Theme_AppCompat_Translucent" />
 
+        <activity
+            android:name=".ui.CustomThemeActivity"
+            android:exported="false" />
+
         <service
             android:name=".ui.MouseCursorService"
             android:exported="false" />

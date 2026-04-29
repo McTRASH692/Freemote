@@ -3,7 +3,62 @@
     android:height="24dp"
     android:viewportWidth="24"
     android:viewportHeight="24">
+
+    <!-- Outer keyboard body -->
     <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M20,5H4c-1.1,0-1.99,0.9-1.99,2L2,17c0,1.1,0.9,2,2,2h16c1.1,0,2-0.9,2-2V7c0-1.1-0.9-2-2-2zM11,12H8v3H6v-3H3v-2h3V7h2v3h3v2zM17,12h-3v3h-2v-3h-3v-2h3V7h2v3h3v2z"/>
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="?attr/colorTextPrimary"
+        android:strokeWidth="1.5"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M2,5 L22,5 Q22,5 22,6 L22,18 Q22,19 21,19 L3,19 Q2,19 2,18 L2,6 Q2,5 3,5 Z"/>
+
+    <!-- Row 1 keys: Q W E R T Y U I O P -->
+    <path
+        android:fillColor="?attr/colorTextPrimary"
+        android:pathData="
+            M4.5,8.5 h1 v1 h-1 z
+            M6.5,8.5 h1 v1 h-1 z
+            M8.5,8.5 h1 v1 h-1 z
+            M10.5,8.5 h1 v1 h-1 z
+            M12.5,8.5 h1 v1 h-1 z
+            M14.5,8.5 h1 v1 h-1 z
+            M16.5,8.5 h1 v1 h-1 z
+            M18.5,8.5 h1 v1 h-1 z"/>
+
+    <!-- Row 2 keys: A S D F G H J K L -->
+    <path
+        android:fillColor="?attr/colorTextPrimary"
+        android:pathData="
+            M5.5,11 h1 v1 h-1 z
+            M7.5,11 h1 v1 h-1 z
+            M9.5,11 h1 v1 h-1 z
+            M11.5,11 h1 v1 h-1 z
+            M13.5,11 h1 v1 h-1 z
+            M15.5,11 h1 v1 h-1 z
+            M17.5,11 h1 v1 h-1 z"/>
+
+    <!-- Row 3: Z X C — spacebar — V B N M -->
+    <path
+        android:fillColor="?attr/colorTextPrimary"
+        android:pathData="
+            M4.5,13.5 h1 v1 h-1 z
+            M6.5,13.5 h1 v1 h-1 z
+            M8.5,13.5 h1 v1 h-1 z"/>
+    <!-- Spacebar -->
+    <path
+        android:fillColor="?attr/colorTextPrimary"
+        android:pathData="M10,13.5 h4 v1 h-4 z"/>
+    <path
+        android:fillColor="?attr/colorTextPrimary"
+        android:pathData="
+            M15.5,13.5 h1 v1 h-1 z
+            M17.5,13.5 h1 v1 h-1 z
+            M19.5,13.5 h1 v1 h-1 z"/>
+
+    <!-- Enter key (bottom-right, wider) -->
+    <path
+        android:fillColor="?attr/colorTextPrimary"
+        android:pathData="M20,10.75 h1.5 v1.5 h-1.5 z"/>
+
 </vector>

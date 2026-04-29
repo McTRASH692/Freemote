@@ -1,102 +1,298 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Base application theme -->
-    <style name="Theme_Freemote" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <item name="android:statusBarColor">#0D1B2A</item>
+    <!-- Base theme that all themes extend -->
+    <style name="Theme_Freemote_Base" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="android:statusBarColor">@android:color/black</item>
         <item name="android:navigationBarColor">@android:color/black</item>
         <item name="android:windowLightStatusBar">false</item>
     </style>
 
-    <!-- Theme 1: Original (Dark Purple) -->
-    <style name="Theme_Freemote_Theme1" parent="Theme_Freemote">
+    <!-- DEFAULT THEME (used by manifest and fallback) -->
+    <style name="Theme_Freemote" parent="Theme_Freemote_Base">
+        <item name="colorBackground">@color/theme1_bg_dark</item>
+        <item name="colorSurface">@color/theme1_button</item>
         <item name="colorPrimary">@color/theme1_accent</item>
-        <item name="colorPrimaryDark">@color/theme1_bg_dark</item>
-        <item name="colorAccent">@color/theme1_accent</item>
+        <item name="colorSecondary">@color/theme1_accent</item>
+        <item name="colorNavZone">@color/theme1_bg_medium</item>
+        <item name="colorButtonBg">@color/theme1_button</item>
+        <item name="colorButtonIcon">@color/theme1_text</item>
+        <item name="colorTextPrimary">@color/theme1_text</item>
+        <item name="colorTextSecondary">#80FFFFFF</item>
+        <item name="colorAccentButton">@color/theme1_accent</item>
+        <item name="colorDivider">@color/theme1_accent</item>
+        <item name="colorTouchpadBg">@color/theme1_bg_medium</item>
+        <item name="colorTouchpadText">#CCFFFFFF</item>
+        <item name="colorConnectionActive">#4CAF50</item>
+        <item name="colorConnectionInactive">#FF5722</item>
+        <item name="colorConnectionError">#F44336</item>
+        <item name="colorDangerButton">#EF5350</item>
+        <item name="android:colorBackground">@color/theme1_bg_dark</item>
         <item name="android:windowBackground">@color/theme1_bg_dark</item>
-        <item name="android:statusBarColor">@color/theme1_bg_dark</item>
+        <item name="android:textColorPrimary">@color/theme1_text</item>
+    </style>
+
+    <!-- Theme 1: Original -->
+    <style name="Theme_Freemote_Theme1" parent="Theme_Freemote_Base">
+        <item name="colorBackground">@color/theme1_bg_dark</item>
+        <item name="colorSurface">@color/theme1_button</item>
+        <item name="colorPrimary">@color/theme1_accent</item>
+        <item name="colorSecondary">@color/theme1_accent</item>
+        <item name="colorNavZone">@color/theme1_bg_medium</item>
+        <item name="colorButtonBg">@color/theme1_button</item>
+        <item name="colorButtonIcon">@color/theme1_text</item>
+        <item name="colorTextPrimary">@color/theme1_text</item>
+        <item name="colorTextSecondary">#80FFFFFF</item>
+        <item name="colorAccentButton">@color/theme1_accent</item>
+        <item name="colorDivider">@color/theme1_accent</item>
+        <item name="colorTouchpadBg">@color/theme1_bg_medium</item>
+        <item name="colorTouchpadText">#CCFFFFFF</item>
+        <item name="colorConnectionActive">#4CAF50</item>
+        <item name="colorConnectionInactive">#FF5722</item>
+        <item name="colorConnectionError">#F44336</item>
+        <item name="colorDangerButton">#EF5350</item>
+        <item name="android:colorBackground">@color/theme1_bg_dark</item>
+        <item name="android:windowBackground">@color/theme1_bg_dark</item>
+        <item name="android:textColorPrimary">@color/theme1_text</item>
     </style>
 
     <!-- Theme 2: Cyberpunk -->
-    <style name="Theme_Freemote_Theme2" parent="Theme_Freemote">
+    <style name="Theme_Freemote_Theme2" parent="Theme_Freemote_Base">
+        <item name="colorBackground">@color/theme2_bg_dark</item>
+        <item name="colorSurface">@color/theme2_button</item>
         <item name="colorPrimary">@color/theme2_accent</item>
-        <item name="colorPrimaryDark">@color/theme2_bg_dark</item>
-        <item name="colorAccent">@color/theme2_accent</item>
+        <item name="colorSecondary">@color/theme2_accent</item>
+        <item name="colorNavZone">@color/theme2_bg_medium</item>
+        <item name="colorButtonBg">@color/theme2_button</item>
+        <item name="colorButtonIcon">@color/theme2_text</item>
+        <item name="colorTextPrimary">@color/theme2_text</item>
+        <item name="colorTextSecondary">#80FFFFFF</item>
+        <item name="colorAccentButton">@color/theme2_accent</item>
+        <item name="colorDivider">@color/theme2_accent</item>
+        <item name="colorTouchpadBg">@color/theme2_bg_medium</item>
+        <item name="colorTouchpadText">#CCFFFFFF</item>
+        <item name="colorConnectionActive">#00D4FF</item>
+        <item name="colorConnectionInactive">#FF5722</item>
+        <item name="colorConnectionError">#F44336</item>
+        <item name="colorDangerButton">#EF5350</item>
+        <item name="android:colorBackground">@color/theme2_bg_dark</item>
         <item name="android:windowBackground">@color/theme2_bg_dark</item>
-        <item name="android:statusBarColor">@color/theme2_bg_dark</item>
+        <item name="android:textColorPrimary">@color/theme2_text</item>
     </style>
 
     <!-- Theme 3: Sunset -->
-    <style name="Theme_Freemote_Theme3" parent="Theme_Freemote">
+    <style name="Theme_Freemote_Theme3" parent="Theme_Freemote_Base">
+        <item name="colorBackground">@color/theme3_bg_dark</item>
+        <item name="colorSurface">@color/theme3_button</item>
         <item name="colorPrimary">@color/theme3_accent</item>
-        <item name="colorPrimaryDark">@color/theme3_bg_dark</item>
-        <item name="colorAccent">@color/theme3_accent</item>
+        <item name="colorSecondary">@color/theme3_accent</item>
+        <item name="colorNavZone">@color/theme3_bg_medium</item>
+        <item name="colorButtonBg">@color/theme3_button</item>
+        <item name="colorButtonIcon">@color/theme3_text</item>
+        <item name="colorTextPrimary">@color/theme3_text</item>
+        <item name="colorTextSecondary">#80FFFFFF</item>
+        <item name="colorAccentButton">@color/theme3_accent</item>
+        <item name="colorDivider">@color/theme3_accent</item>
+        <item name="colorTouchpadBg">@color/theme3_bg_medium</item>
+        <item name="colorTouchpadText">#CCFFFFFF</item>
+        <item name="colorConnectionActive">#FF6B35</item>
+        <item name="colorConnectionInactive">#FF5722</item>
+        <item name="colorConnectionError">#F44336</item>
+        <item name="colorDangerButton">#EF5350</item>
+        <item name="android:colorBackground">@color/theme3_bg_dark</item>
         <item name="android:windowBackground">@color/theme3_bg_dark</item>
-        <item name="android:statusBarColor">@color/theme3_bg_dark</item>
+        <item name="android:textColorPrimary">@color/theme3_text</item>
     </style>
 
     <!-- Theme 4: Forest -->
-    <style name="Theme_Freemote_Theme4" parent="Theme_Freemote">
+    <style name="Theme_Freemote_Theme4" parent="Theme_Freemote_Base">
+        <item name="colorBackground">@color/theme4_bg_dark</item>
+        <item name="colorSurface">@color/theme4_button</item>
         <item name="colorPrimary">@color/theme4_accent</item>
-        <item name="colorPrimaryDark">@color/theme4_bg_dark</item>
-        <item name="colorAccent">@color/theme4_accent</item>
+        <item name="colorSecondary">@color/theme4_accent</item>
+        <item name="colorNavZone">@color/theme4_bg_medium</item>
+        <item name="colorButtonBg">@color/theme4_button</item>
+        <item name="colorButtonIcon">@color/theme4_text</item>
+        <item name="colorTextPrimary">@color/theme4_text</item>
+        <item name="colorTextSecondary">#80FFFFFF</item>
+        <item name="colorAccentButton">@color/theme4_accent</item>
+        <item name="colorDivider">@color/theme4_accent</item>
+        <item name="colorTouchpadBg">@color/theme4_bg_medium</item>
+        <item name="colorTouchpadText">#CCFFFFFF</item>
+        <item name="colorConnectionActive">#4CAF50</item>
+        <item name="colorConnectionInactive">#FF5722</item>
+        <item name="colorConnectionError">#F44336</item>
+        <item name="colorDangerButton">#EF5350</item>
+        <item name="android:colorBackground">@color/theme4_bg_dark</item>
         <item name="android:windowBackground">@color/theme4_bg_dark</item>
-        <item name="android:statusBarColor">@color/theme4_bg_dark</item>
+        <item name="android:textColorPrimary">@color/theme4_text</item>
     </style>
 
     <!-- Theme 5: Midnight -->
-    <style name="Theme_Freemote_Theme5" parent="Theme_Freemote">
+    <style name="Theme_Freemote_Theme5" parent="Theme_Freemote_Base">
+        <item name="colorBackground">@color/theme5_bg_dark</item>
+        <item name="colorSurface">@color/theme5_button</item>
         <item name="colorPrimary">@color/theme5_accent</item>
-        <item name="colorPrimaryDark">@color/theme5_bg_dark</item>
-        <item name="colorAccent">@color/theme5_accent</item>
+        <item name="colorSecondary">@color/theme5_accent</item>
+        <item name="colorNavZone">@color/theme5_bg_medium</item>
+        <item name="colorButtonBg">@color/theme5_button</item>
+        <item name="colorButtonIcon">@color/theme5_text</item>
+        <item name="colorTextPrimary">@color/theme5_text</item>
+        <item name="colorTextSecondary">#80FFFFFF</item>
+        <item name="colorAccentButton">@color/theme5_accent</item>
+        <item name="colorDivider">@color/theme5_accent</item>
+        <item name="colorTouchpadBg">@color/theme5_bg_medium</item>
+        <item name="colorTouchpadText">#CCFFFFFF</item>
+        <item name="colorConnectionActive">#2196F3</item>
+        <item name="colorConnectionInactive">#FF5722</item>
+        <item name="colorConnectionError">#F44336</item>
+        <item name="colorDangerButton">#EF5350</item>
+        <item name="android:colorBackground">@color/theme5_bg_dark</item>
         <item name="android:windowBackground">@color/theme5_bg_dark</item>
-        <item name="android:statusBarColor">@color/theme5_bg_dark</item>
+        <item name="android:textColorPrimary">@color/theme5_text</item>
     </style>
 
     <!-- Theme 6: OLED Red -->
-    <style name="Theme_Freemote_Theme6" parent="Theme_Freemote">
+    <style name="Theme_Freemote_Theme6" parent="Theme_Freemote_Base">
+        <item name="colorBackground">@color/theme6_bg_dark</item>
+        <item name="colorSurface">@color/theme6_button</item>
         <item name="colorPrimary">@color/theme6_accent</item>
-        <item name="colorPrimaryDark">@color/theme6_bg_dark</item>
-        <item name="colorAccent">@color/theme6_accent</item>
+        <item name="colorSecondary">@color/theme6_accent</item>
+        <item name="colorNavZone">@color/theme6_bg_medium</item>
+        <item name="colorButtonBg">@color/theme6_button</item>
+        <item name="colorButtonIcon">@color/theme6_text</item>
+        <item name="colorTextPrimary">@color/theme6_text</item>
+        <item name="colorTextSecondary">#80FFFFFF</item>
+        <item name="colorAccentButton">@color/theme6_accent</item>
+        <item name="colorDivider">@color/theme6_accent</item>
+        <item name="colorTouchpadBg">@color/theme6_bg_medium</item>
+        <item name="colorTouchpadText">#CCFFFFFF</item>
+        <item name="colorConnectionActive">#FF1744</item>
+        <item name="colorConnectionInactive">#FF5722</item>
+        <item name="colorConnectionError">#F44336</item>
+        <item name="colorDangerButton">#EF5350</item>
+        <item name="android:colorBackground">@color/theme6_bg_dark</item>
         <item name="android:windowBackground">@color/theme6_bg_dark</item>
-        <item name="android:statusBarColor">@color/theme6_bg_dark</item>
+        <item name="android:textColorPrimary">@color/theme6_text</item>
     </style>
 
     <!-- Theme 7: Ocean -->
-    <style name="Theme_Freemote_Theme7" parent="Theme_Freemote">
+    <style name="Theme_Freemote_Theme7" parent="Theme_Freemote_Base">
+        <item name="colorBackground">@color/theme7_bg_dark</item>
+        <item name="colorSurface">@color/theme7_button</item>
         <item name="colorPrimary">@color/theme7_accent</item>
-        <item name="colorPrimaryDark">@color/theme7_bg_dark</item>
-        <item name="colorAccent">@color/theme7_accent</item>
+        <item name="colorSecondary">@color/theme7_accent</item>
+        <item name="colorNavZone">@color/theme7_bg_medium</item>
+        <item name="colorButtonBg">@color/theme7_button</item>
+        <item name="colorButtonIcon">@color/theme7_text</item>
+        <item name="colorTextPrimary">@color/theme7_text</item>
+        <item name="colorTextSecondary">#80FFFFFF</item>
+        <item name="colorAccentButton">@color/theme7_accent</item>
+        <item name="colorDivider">@color/theme7_accent</item>
+        <item name="colorTouchpadBg">@color/theme7_bg_medium</item>
+        <item name="colorTouchpadText">#CCFFFFFF</item>
+        <item name="colorConnectionActive">#00BCD4</item>
+        <item name="colorConnectionInactive">#FF5722</item>
+        <item name="colorConnectionError">#F44336</item>
+        <item name="colorDangerButton">#EF5350</item>
+        <item name="android:colorBackground">@color/theme7_bg_dark</item>
         <item name="android:windowBackground">@color/theme7_bg_dark</item>
-        <item name="android:statusBarColor">@color/theme7_bg_dark</item>
+        <item name="android:textColorPrimary">@color/theme7_text</item>
     </style>
 
     <!-- Theme 8: Light Clean -->
-    <style name="Theme_Freemote_Theme8" parent="Theme_Freemote">
+    <style name="Theme_Freemote_Theme8" parent="Theme_Freemote_Base">
+        <item name="colorBackground">@color/theme8_bg_dark</item>
+        <item name="colorSurface">@color/theme8_button</item>
         <item name="colorPrimary">@color/theme8_accent</item>
-        <item name="colorPrimaryDark">@color/theme8_bg_dark</item>
-        <item name="colorAccent">@color/theme8_accent</item>
+        <item name="colorSecondary">@color/theme8_accent</item>
+        <item name="colorNavZone">@color/theme8_bg_medium</item>
+        <item name="colorButtonBg">@color/theme8_button</item>
+        <item name="colorButtonIcon">@color/theme8_text</item>
+        <item name="colorTextPrimary">@color/theme8_text</item>
+        <item name="colorTextSecondary">#666666</item>
+        <item name="colorAccentButton">@color/theme8_accent</item>
+        <item name="colorDivider">@color/theme8_accent</item>
+        <item name="colorTouchpadBg">@color/theme8_bg_medium</item>
+        <item name="colorTouchpadText">#666666</item>
+        <item name="colorConnectionActive">#1976D2</item>
+        <item name="colorConnectionInactive">#FF5722</item>
+        <item name="colorConnectionError">#F44336</item>
+        <item name="colorDangerButton">#EF5350</item>
+        <item name="android:colorBackground">@color/theme8_bg_dark</item>
         <item name="android:windowBackground">@color/theme8_bg_dark</item>
-        <item name="android:statusBarColor">@color/theme8_bg_dark</item>
         <item name="android:windowLightStatusBar">true</item>
+        <item name="android:textColorPrimary">@color/theme8_text</item>
     </style>
 
-    <!-- Theme 9: Light Warm Paper -->
-    <style name="Theme_Freemote_Theme9" parent="Theme_Freemote">
+    <!-- Theme 9: Warm Paper -->
+    <style name="Theme_Freemote_Theme9" parent="Theme_Freemote_Base">
+        <item name="colorBackground">@color/theme9_bg_dark</item>
+        <item name="colorSurface">@color/theme9_button</item>
         <item name="colorPrimary">@color/theme9_accent</item>
-        <item name="colorPrimaryDark">@color/theme9_bg_dark</item>
-        <item name="colorAccent">@color/theme9_accent</item>
+        <item name="colorSecondary">@color/theme9_accent</item>
+        <item name="colorNavZone">@color/theme9_bg_medium</item>
+        <item name="colorButtonBg">@color/theme9_button</item>
+        <item name="colorButtonIcon">@color/theme9_text</item>
+        <item name="colorTextPrimary">@color/theme9_text</item>
+        <item name="colorTextSecondary">#8B7355</item>
+        <item name="colorAccentButton">@color/theme9_accent</item>
+        <item name="colorDivider">@color/theme9_accent</item>
+        <item name="colorTouchpadBg">@color/theme9_bg_medium</item>
+        <item name="colorTouchpadText">#8B7355</item>
+        <item name="colorConnectionActive">#E65100</item>
+        <item name="colorConnectionInactive">#FF5722</item>
+        <item name="colorConnectionError">#F44336</item>
+        <item name="colorDangerButton">#EF5350</item>
+        <item name="android:colorBackground">@color/theme9_bg_dark</item>
         <item name="android:windowBackground">@color/theme9_bg_dark</item>
-        <item name="android:statusBarColor">@color/theme9_bg_dark</item>
         <item name="android:windowLightStatusBar">true</item>
+        <item name="android:textColorPrimary">@color/theme9_text</item>
     </style>
 
     <!-- Theme 10: Purple Haze -->
-    <style name="Theme_Freemote_Theme10" parent="Theme_Freemote">
+    <style name="Theme_Freemote_Theme10" parent="Theme_Freemote_Base">
+        <item name="colorBackground">@color/theme10_bg_dark</item>
+        <item name="colorSurface">@color/theme10_button</item>
         <item name="colorPrimary">@color/theme10_accent</item>
-        <item name="colorPrimaryDark">@color/theme10_bg_dark</item>
-        <item name="colorAccent">@color/theme10_accent</item>
+        <item name="colorSecondary">@color/theme10_accent</item>
+        <item name="colorNavZone">@color/theme10_bg_medium</item>
+        <item name="colorButtonBg">@color/theme10_button</item>
+        <item name="colorButtonIcon">@color/theme10_text</item>
+        <item name="colorTextPrimary">@color/theme10_text</item>
+        <item name="colorTextSecondary">#80FFFFFF</item>
+        <item name="colorAccentButton">@color/theme10_accent</item>
+        <item name="colorDivider">@color/theme10_accent</item>
+        <item name="colorTouchpadBg">@color/theme10_bg_medium</item>
+        <item name="colorTouchpadText">#CCFFFFFF</item>
+        <item name="colorConnectionActive">#CE93D8</item>
+        <item name="colorConnectionInactive">#FF5722</item>
+        <item name="colorConnectionError">#F44336</item>
+        <item name="colorDangerButton">#EF5350</item>
+        <item name="android:colorBackground">@color/theme10_bg_dark</item>
         <item name="android:windowBackground">@color/theme10_bg_dark</item>
-        <item name="android:statusBarColor">@color/theme10_bg_dark</item>
+        <item name="android:textColorPrimary">@color/theme10_text</item>
+    </style>
+
+    <!-- Custom Theme — concrete fallback colors so Android can resolve attrs at
+         inflation time. Actual user-chosen colors are applied imperatively at
+         runtime by BaseActivity via CustomThemeManager.getPermanentColor(). -->
+    <style name="Theme_Freemote_Custom" parent="Theme_Freemote_Base">
+        <item name="colorBackground">#FF000000</item>
+        <item name="colorButtonBg">#FF1A0D33</item>
+        <item name="colorPrimary">#FF00FF00</item>
+        <item name="colorTextPrimary">#FFFFFFFF</item>
+        <item name="colorTextSecondary">#80FFFFFF</item>
+        <item name="colorNavZone">#FF1A0D33</item>
+        <item name="colorDivider">#FF00FF00</item>
+        <item name="colorTouchpadBg">#FF1A0D33</item>
+        <item name="colorTouchpadText">#CCFFFFFF</item>
+        <item name="colorConnectionActive">#4CAF50</item>
+        <item name="colorConnectionInactive">#FF5722</item>
+        <item name="colorConnectionError">#F44336</item>
+        <item name="colorDangerButton">#EF5350</item>
+        <item name="android:colorBackground">#FF000000</item>
+        <item name="android:windowBackground">#FF000000</item>
+        <item name="android:textColorPrimary">#FFFFFFFF</item>
     </style>
 
     <!-- Translucent theme for VoiceCommandActivity -->
@@ -107,5 +303,4 @@
         <item name="android:windowNoTitle">true</item>
         <item name="android:backgroundDimEnabled">true</item>
     </style>
-
 </resources>

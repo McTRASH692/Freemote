@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Theme color attributes - UI reads from these -->
+    <attr name="colorBackground" format="color" />
+    <attr name="colorSurface" format="color" />
+    <attr name="colorPrimary" format="color" />
+    <attr name="colorSecondary" format="color" />
+    <attr name="colorNavZone" format="color" />
+    <attr name="colorButtonBg" format="color" />
+    <attr name="colorButtonIcon" format="color" />
+    <attr name="colorTextPrimary" format="color" />
+    <attr name="colorTextSecondary" format="color" />
+    <attr name="colorAccentButton" format="color" />
+    <attr name="colorDivider" format="color" />
+    <attr name="colorTouchpadBg" format="color" />
+    <attr name="colorTouchpadText" format="color" />
+    <attr name="colorConnectionActive" format="color" />
+    <attr name="colorConnectionInactive" format="color" />
+    <attr name="colorConnectionError" format="color" />
+    <attr name="colorDangerButton" format="color" />
+    
+    <!-- Custom theme attributes - filled at runtime -->
+    <attr name="customColorBackground" format="color" />
+    <attr name="customColorSurface" format="color" />
+    <attr name="customColorPrimary" format="color" />
+    <attr name="customColorNavZone" format="color" />
+    <attr name="customColorButtonBg" format="color" />
+    <attr name="customColorTextPrimary" format="color" />
+    <attr name="customColorTextSecondary" format="color" />
+    <attr name="customColorAccentButton" format="color" />
+    <attr name="customColorDivider" format="color" />
+    <attr name="customColorTouchpadBg" format="color" />
+    <attr name="customColorTouchpadText" format="color" />
+</resources>

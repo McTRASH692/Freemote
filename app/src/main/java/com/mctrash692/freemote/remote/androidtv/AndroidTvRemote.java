@@ -36,7 +36,7 @@ public class AndroidTvRemote {
     private SSLSocket        socket;
     private DataInputStream  in;
     private DataOutputStream out;
-    private volatile boolean connected      = false;
+    private volatile boolean connected       = false;
     private volatile boolean intentionalStop = false;
 
     public AndroidTvRemote(String ip, Listener listener) {
@@ -50,7 +50,6 @@ public class AndroidTvRemote {
             try {
                 SSLContext sslContext = buildPermissiveSslContext();
                 socket = (SSLSocket) sslContext.getSocketFactory().createSocket();
-                // Set a generous read timeout so the read loop doesn't false-fire
                 socket.setSoTimeout(30000);
                 socket.connect(new InetSocketAddress(ip, PORT), 5000);
                 socket.startHandshake();
@@ -62,7 +61,6 @@ public class AndroidTvRemote {
                 Log.d(TAG, "Connected to Android TV @ " + ip);
                 listener.onConnected();
 
-                // Read loop — only reports disconnect on unexpected closure
                 while (connected && !intentionalStop) {
                     try {
                         int len = in.readInt();
@@ -72,7 +70,6 @@ public class AndroidTvRemote {
                             Log.d(TAG, "Received " + len + " bytes from TV");
                         }
                     } catch (java.net.SocketTimeoutException e) {
-                        // Read timeout — socket still alive, keep looping
                         Log.v(TAG, "Read timeout (keepalive tick)");
                     } catch (IOException e) {
                         if (!intentionalStop) {
@@ -90,6 +87,9 @@ public class AndroidTvRemote {
                     connected = false;
                     listener.onError(e.getMessage());
                 }
+                // FIX (bug 10): shut down the executor when the connection attempt fails
+                // so the thread pool doesn't linger if disconnect() is never called.
+                executor.shutdown();
             }
         });
     }

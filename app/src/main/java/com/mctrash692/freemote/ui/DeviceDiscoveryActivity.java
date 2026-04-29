@@ -44,7 +44,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
-public class DeviceDiscoveryActivity extends AppCompatActivity {
+public class DeviceDiscoveryActivity extends BaseActivity {
 
     private static final int PERMISSION_REQUEST_CODE = 100;
 
@@ -58,7 +58,7 @@ public class DeviceDiscoveryActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        ThemeManager.applyTheme(this);
+        // applyTheme is called by BaseActivity.onCreate — do not call it again here.
         super.onCreate(savedInstanceState);
         binding = ActivityDeviceDiscoveryBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -79,18 +79,32 @@ public class DeviceDiscoveryActivity extends AppCompatActivity {
     private void checkAndRequestPermissions() {
         List<String> permissionsNeeded = new ArrayList<>();
 
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            permissionsNeeded.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED) {
+                permissionsNeeded.add(Manifest.permission.READ_MEDIA_IMAGES);
+            }
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_VIDEO) != PackageManager.PERMISSION_GRANTED) {
+                permissionsNeeded.add(Manifest.permission.READ_MEDIA_VIDEO);
+            }
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+                permissionsNeeded.add(Manifest.permission.READ_MEDIA_AUDIO);
+            }
+        } else {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                permissionsNeeded.add(Manifest.permission.READ_EXTERNAL_STORAGE);
+            }
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                permissionsNeeded.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            }
         }
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            permissionsNeeded.add(Manifest.permission.READ_EXTERNAL_STORAGE);
-        }
+
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             permissionsNeeded.add(Manifest.permission.ACCESS_FINE_LOCATION);
         }
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             permissionsNeeded.add(Manifest.permission.ACCESS_COARSE_LOCATION);
         }
+
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
             permissionsNeeded.add(Manifest.permission.RECORD_AUDIO);
         }
@@ -105,9 +119,7 @@ public class DeviceDiscoveryActivity extends AppCompatActivity {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.NEARBY_WIFI_DEVICES) != PackageManager.PERMISSION_GRANTED) {
                 permissionsNeeded.add(Manifest.permission.NEARBY_WIFI_DEVICES);
             }
-        }
-
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
+        } else {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH) != PackageManager.PERMISSION_GRANTED) {
                 permissionsNeeded.add(Manifest.permission.BLUETOOTH);
             }
@@ -179,7 +191,6 @@ public class DeviceDiscoveryActivity extends AppCompatActivity {
     private String getLocalSubnet() {
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                // API 31+: use ConnectivityManager + LinkProperties; getConnectionInfo() is deprecated.
                 ConnectivityManager cm = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
                 Network activeNetwork = cm.getActiveNetwork();
                 if (activeNetwork != null) {
@@ -195,13 +206,12 @@ public class DeviceDiscoveryActivity extends AppCompatActivity {
                     }
                 }
             } else {
-                // API 30 and below: legacy path.
                 WifiManager wm = (WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE);
                 int ip = wm.getConnectionInfo().getIpAddress();
                 return String.format("%d.%d.%d.", (ip & 0xff), (ip >> 8 & 0xff), (ip >> 16 & 0xff));
             }
         } catch (Exception e) {
-            // Fall through and return null; network scan will simply be skipped.
+            // Fall through
         }
         return null;
     }
@@ -217,7 +227,7 @@ public class DeviceDiscoveryActivity extends AppCompatActivity {
     private void onDeviceSelected(TvDevice device) {
         try {
             Intent intent = new Intent(this, RemoteActivity.class);
-            intent.putExtra(RemoteActivity.EXTRA_IP, device.getIpAddress());
+            intent.putExtra(RemoteActivity.EXTRA_IP,   device.getIpAddress());
             intent.putExtra(RemoteActivity.EXTRA_PORT, device.getPort());
             intent.putExtra(RemoteActivity.EXTRA_TYPE, device.getType().name());
             intent.putExtra(RemoteActivity.EXTRA_NAME, device.getName());
@@ -244,16 +254,35 @@ public class DeviceDiscoveryActivity extends AppCompatActivity {
         etPort.setText("8002");
         layout.addView(etPort);
 
-        new AlertDialog.Builder(this)
+        AlertDialog dialog = new AlertDialog.Builder(this)
             .setTitle("Manual Connection")
             .setView(layout)
-            .setPositiveButton("Connect", (d, w) -> {
-                String ip = etIp.getText().toString().trim();
-                int port  = Integer.parseInt(etPort.getText().toString().trim());
-                onDeviceSelected(new TvDevice("Manual " + ip, ip, port, TvDevice.Type.SAMSUNG));
-            })
+            .setPositiveButton("Connect", null) // set below to prevent auto-dismiss on error
             .setNegativeButton("Cancel", null)
-            .show();
+            .create();
+
+        dialog.setOnShowListener(d -> dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+            // FIX (bug 7): validate IP and port before parsing, show error instead of crashing.
+            String ip = etIp.getText().toString().trim();
+            String portStr = etPort.getText().toString().trim();
+
+            if (ip.isEmpty()) {
+                etIp.setError("IP address required");
+                return;
+            }
+            int port;
+            try {
+                port = Integer.parseInt(portStr);
+                if (port < 1 || port > 65535) throw new NumberFormatException("out of range");
+            } catch (NumberFormatException e) {
+                etPort.setError("Enter a valid port (1–65535)");
+                return;
+            }
+            dialog.dismiss();
+            onDeviceSelected(new TvDevice("Manual " + ip, ip, port, TvDevice.Type.SAMSUNG));
+        }));
+
+        dialog.show();
     }
 
     static class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.VH> {

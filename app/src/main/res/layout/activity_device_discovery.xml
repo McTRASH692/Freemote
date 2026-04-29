@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="16dp"
-    android:background="#0D1B2A">
+    android:background="?attr/colorBackground">
 
     <!-- Header row: title + settings button -->
     <LinearLayout
@@ -19,7 +19,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Freemote"
-            android:textColor="#FFFFFF"
+            android:textColor="?attr/colorTextPrimary"
             android:textSize="20sp"
             android:textStyle="bold" />
 
@@ -39,7 +39,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/scanning"
-        android:textColor="#CCFFFFFF"
+        android:textColor="?attr/colorTextSecondary"
         android:textSize="14sp"
         android:paddingBottom="8dp" />
 
@@ -62,6 +62,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
-        android:text="@string/manual_entry" />
+        android:text="@string/manual_entry"
+        android:backgroundTint="?attr/colorButtonBg"
+        android:textColor="?attr/colorTextPrimary" />
 
 </LinearLayout>

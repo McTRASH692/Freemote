@@ -2,7 +2,7 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_remote"
+    android:background="?attr/colorBackground"
     android:fillViewport="true">
 
     <LinearLayout
@@ -51,7 +51,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="No device"
-                    android:textColor="#FFFFFF"
+                    android:textColor="?attr/colorTextPrimary"
                     android:textSize="14sp"
                     android:textStyle="bold"
                     android:gravity="center" />
@@ -61,6 +61,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="● Connecting..."
+                    android:textColor="?attr/colorTextSecondary"
                     android:textSize="10sp"
                     android:gravity="center" />
 
@@ -149,7 +150,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="VOL"
-                    android:textColor="#80FFFFFF"
+                    android:textColor="?attr/colorTextSecondary"
                     android:textSize="9sp"
                     android:gravity="center"
                     android:layout_marginBottom="4dp" />
@@ -256,7 +257,7 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:text="Swipe to navigate&#10;Double-tap to select"
-                        android:textColor="#CCFFFFFF"
+                        android:textColor="?attr/colorTouchpadText"
                         android:textSize="12sp"
                         android:gravity="center" />
 
@@ -285,7 +286,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="CH"
-                    android:textColor="#80FFFFFF"
+                    android:textColor="?attr/colorTextSecondary"
                     android:textSize="9sp"
                     android:gravity="center"
                     android:layout_marginBottom="4dp" />
@@ -354,7 +355,7 @@
 
         </LinearLayout>
 
-        <!-- App Shortcuts: 6 customizable slots (2 rows of 3) -->
+        <!-- ── Customisable App Shortcuts: 6 slots (2 rows of 3) ────────────── -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -370,7 +371,7 @@
                 <ImageButton android:id="@+id/btnShortcut1"
                     android:layout_width="0dp" android:layout_height="52dp"
                     android:layout_weight="1" android:background="@drawable/bg_button"
-                    android:src="@drawable/default_icon"
+                    android:src="@drawable/youtube"
                     android:padding="8dp" android:scaleType="fitCenter"
                     android:contentDescription="Shortcut 1"
                     android:layout_marginEnd="6dp" />
@@ -378,7 +379,7 @@
                 <ImageButton android:id="@+id/btnShortcut2"
                     android:layout_width="0dp" android:layout_height="52dp"
                     android:layout_weight="1" android:background="@drawable/bg_button"
-                    android:src="@drawable/default_icon"
+                    android:src="@drawable/primevideo"
                     android:padding="8dp" android:scaleType="fitCenter"
                     android:contentDescription="Shortcut 2"
                     android:layout_marginEnd="6dp" />
@@ -386,7 +387,7 @@
                 <ImageButton android:id="@+id/btnShortcut3"
                     android:layout_width="0dp" android:layout_height="52dp"
                     android:layout_weight="1" android:background="@drawable/bg_button"
-                    android:src="@drawable/default_icon"
+                    android:src="@drawable/netflix"
                     android:padding="8dp" android:scaleType="fitCenter"
                     android:contentDescription="Shortcut 3" />
 
@@ -400,7 +401,7 @@
                 <ImageButton android:id="@+id/btnShortcut4"
                     android:layout_width="0dp" android:layout_height="52dp"
                     android:layout_weight="1" android:background="@drawable/bg_button"
-                    android:src="@drawable/default_icon"
+                    android:src="@drawable/disneyplus"
                     android:padding="8dp" android:scaleType="fitCenter"
                     android:contentDescription="Shortcut 4"
                     android:layout_marginEnd="6dp" />
@@ -408,7 +409,7 @@
                 <ImageButton android:id="@+id/btnShortcut5"
                     android:layout_width="0dp" android:layout_height="52dp"
                     android:layout_weight="1" android:background="@drawable/bg_button"
-                    android:src="@drawable/default_icon"
+                    android:src="@drawable/plex"
                     android:padding="8dp" android:scaleType="fitCenter"
                     android:contentDescription="Shortcut 5"
                     android:layout_marginEnd="6dp" />
@@ -416,7 +417,7 @@
                 <ImageButton android:id="@+id/btnShortcut6"
                     android:layout_width="0dp" android:layout_height="52dp"
                     android:layout_weight="1" android:background="@drawable/bg_button"
-                    android:src="@drawable/default_icon"
+                    android:src="@drawable/kodi"
                     android:padding="8dp" android:scaleType="fitCenter"
                     android:contentDescription="Shortcut 6" />
 
@@ -424,76 +425,93 @@
 
         </LinearLayout>
 
-        <!-- Bottom Action Row: Apps | Cast | Keyboard | Number | Voice | ToggleVol -->
+        <!-- ── Divider: visually separates customisable from hardcoded ────────── -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="?attr/colorDivider"
+            android:layout_marginBottom="8dp"
+            android:alpha="0.4" />
+
+        <!-- ── Hardcoded utility buttons: 2 rows of 3 ──────────────────────── -->
+        <!-- Row A: Apps | Cast | Keyboard -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:layout_marginBottom="6dp">
 
             <ImageButton
                 android:id="@+id/btnApps"
                 android:layout_width="0dp"
-                android:layout_height="52dp"
+                android:layout_height="48dp"
                 android:layout_weight="1"
                 android:background="@drawable/bg_button"
                 android:src="@drawable/ic_grid_2x2"
-                android:padding="12dp"
+                android:padding="10dp"
                 android:contentDescription="Apps"
-                android:layout_marginEnd="4dp" />
+                android:layout_marginEnd="6dp" />
 
             <ImageButton
                 android:id="@+id/btnCast"
                 android:layout_width="0dp"
-                android:layout_height="52dp"
+                android:layout_height="48dp"
                 android:layout_weight="1"
                 android:background="@drawable/bg_button"
                 android:src="@drawable/ic_cast"
-                android:padding="12dp"
+                android:padding="10dp"
                 android:contentDescription="Cast"
-                android:layout_marginEnd="4dp" />
+                android:layout_marginEnd="6dp" />
 
             <ImageButton
                 android:id="@+id/btnKeyboard"
                 android:layout_width="0dp"
-                android:layout_height="52dp"
+                android:layout_height="48dp"
                 android:layout_weight="1"
                 android:background="@drawable/bg_button"
                 android:src="@drawable/ic_keyboard"
-                android:padding="12dp"
-                android:contentDescription="Keyboard"
-                android:layout_marginEnd="4dp" />
+                android:padding="10dp"
+                android:contentDescription="Keyboard" />
+
+        </LinearLayout>
+
+        <!-- Row B: Number Pad | Voice | Toggle Vol Slider -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="4dp">
 
             <ImageButton
                 android:id="@+id/btnNumberPad"
                 android:layout_width="0dp"
-                android:layout_height="52dp"
+                android:layout_height="48dp"
                 android:layout_weight="1"
                 android:background="@drawable/bg_button"
-                android:text="123"
-                android:textColor="#FFFFFF"
-                android:textSize="18sp"
-                android:contentDescription="Number Pad" />
+                android:src="@drawable/ic_tv_minimal"
+                android:padding="10dp"
+                android:contentDescription="Number Pad"
+                android:layout_marginEnd="6dp" />
 
             <ImageButton
                 android:id="@+id/btnVoice"
                 android:layout_width="0dp"
-                android:layout_height="52dp"
+                android:layout_height="48dp"
                 android:layout_weight="1"
                 android:background="@drawable/bg_button"
                 android:src="@drawable/ic_mic"
-                android:padding="12dp"
+                android:padding="10dp"
                 android:contentDescription="Voice Command"
-                android:layout_marginEnd="4dp" />
+                android:layout_marginEnd="6dp" />
 
             <ImageButton
                 android:id="@+id/btnToggleVolume"
                 android:layout_width="0dp"
-                android:layout_height="52dp"
+                android:layout_height="48dp"
                 android:layout_weight="1"
                 android:background="@drawable/bg_button"
-                android:text="SLD"
-                android:textColor="#FFFFFF"
-                android:textSize="12sp"
+                android:src="@drawable/ic_volume_2"
+                android:padding="10dp"
                 android:contentDescription="Toggle Volume Slider" />
 
         </LinearLayout>

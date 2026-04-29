@@ -67,7 +67,6 @@ public class PairingManager {
     public void startPairing() {
         executor.submit(() -> {
             try {
-                // Generate local RSA keypair and self-signed cert for the Polo handshake
                 KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
                 kpg.initialize(2048, new SecureRandom());
                 KeyPair keyPair = kpg.generateKeyPair();
@@ -118,6 +117,12 @@ public class PairingManager {
         this.pendingPin = pin;
         executor.submit(() -> {
             try {
+                // FIX (bug 3): guard against remoteCert being null if TLS handshake
+                // did not populate it (e.g. TV sends empty chain).
+                if (remoteCert == null) {
+                    listener.onError("Remote certificate not available — cannot derive secret");
+                    return;
+                }
                 byte[] secret = deriveSecret(pin);
                 sendSecret(secret);
 
