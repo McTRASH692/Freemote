@@ -1,0 +1,502 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_remote"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="12dp">
+
+        <!-- Volume Slider (hidden by default) -->
+        <SeekBar
+            android:id="@+id/volumeSeekBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:max="100"
+            android:progress="50"
+            android:layout_marginBottom="8dp" />
+
+        <!-- Row 1: Power | Device Name & Status | Settings -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="8dp">
+
+            <ImageButton
+                android:id="@+id/btnPower"
+                android:layout_width="52dp"
+                android:layout_height="52dp"
+                android:background="@drawable/bg_button"
+                android:src="@drawable/ic_power"
+                android:padding="12dp"
+                android:contentDescription="Power" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:layout_marginHorizontal="8dp">
+
+                <TextView
+                    android:id="@+id/tvDeviceName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="No device"
+                    android:textColor="#FFFFFF"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:gravity="center" />
+
+                <TextView
+                    android:id="@+id/tvConnectionStatus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="● Connecting..."
+                    android:textSize="10sp"
+                    android:gravity="center" />
+
+            </LinearLayout>
+
+            <ImageButton
+                android:id="@+id/btnSettings"
+                android:layout_width="52dp"
+                android:layout_height="52dp"
+                android:background="@drawable/bg_button"
+                android:src="@drawable/ic_settings"
+                android:padding="12dp"
+                android:contentDescription="Settings" />
+
+        </LinearLayout>
+
+        <!-- Row 2: Info | Guide | Menu -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp">
+
+            <ImageButton
+                android:id="@+id/btnInfo"
+                android:layout_width="0dp"
+                android:layout_height="52dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_button"
+                android:src="@drawable/ic_info"
+                android:padding="12dp"
+                android:contentDescription="Info"
+                android:layout_marginEnd="6dp" />
+
+            <ImageButton
+                android:id="@+id/btnGuide"
+                android:layout_width="0dp"
+                android:layout_height="52dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_button"
+                android:src="@drawable/ic_grid_2x2"
+                android:padding="12dp"
+                android:contentDescription="Guide"
+                android:layout_marginEnd="6dp" />
+
+            <ImageButton
+                android:id="@+id/btnMenu"
+                android:layout_width="0dp"
+                android:layout_height="52dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_button"
+                android:src="@drawable/ic_menu"
+                android:padding="12dp"
+                android:contentDescription="Menu" />
+
+        </LinearLayout>
+
+        <!-- Nav Zone: Vol | D-pad/Touchpad | CH -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:background="@drawable/bg_nav_zone"
+            android:padding="8dp"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="8dp">
+
+            <!-- Vol column -->
+            <LinearLayout
+                android:layout_width="52dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center">
+
+                <ImageButton
+                    android:id="@+id/btnVolUp"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="@drawable/bg_button"
+                    android:src="@drawable/ic_volume_2"
+                    android:padding="10dp"
+                    android:contentDescription="Volume Up"
+                    android:layout_marginBottom="4dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="VOL"
+                    android:textColor="#80FFFFFF"
+                    android:textSize="9sp"
+                    android:gravity="center"
+                    android:layout_marginBottom="4dp" />
+
+                <ImageButton
+                    android:id="@+id/btnVolDown"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="@drawable/bg_button"
+                    android:src="@drawable/ic_volume_1"
+                    android:padding="10dp"
+                    android:contentDescription="Volume Down"
+                    android:layout_marginBottom="4dp" />
+
+                <ImageButton
+                    android:id="@+id/btnMute"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="@drawable/bg_button"
+                    android:src="@drawable/ic_volume_x"
+                    android:padding="10dp"
+                    android:contentDescription="Mute" />
+
+            </LinearLayout>
+
+            <!-- D-pad / Touchpad zone -->
+            <FrameLayout
+                android:layout_width="0dp"
+                android:layout_height="260dp"
+                android:layout_weight="1"
+                android:layout_marginHorizontal="8dp">
+
+                <RelativeLayout
+                    android:id="@+id/layoutDpad"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:visibility="visible">
+
+                    <ImageButton
+                        android:id="@+id/btnDpadUp"
+                        android:layout_width="52dp"
+                        android:layout_height="52dp"
+                        android:layout_centerHorizontal="true"
+                        android:layout_alignParentTop="true"
+                        android:background="@drawable/bg_button"
+                        android:src="@drawable/ic_arrow_up"
+                        android:padding="12dp"
+                        android:contentDescription="Up" />
+
+                    <ImageButton
+                        android:id="@+id/btnDpadDown"
+                        android:layout_width="52dp"
+                        android:layout_height="52dp"
+                        android:layout_centerHorizontal="true"
+                        android:layout_alignParentBottom="true"
+                        android:background="@drawable/bg_button"
+                        android:src="@drawable/ic_arrow_down"
+                        android:padding="12dp"
+                        android:contentDescription="Down" />
+
+                    <ImageButton
+                        android:id="@+id/btnDpadLeft"
+                        android:layout_width="52dp"
+                        android:layout_height="52dp"
+                        android:layout_centerVertical="true"
+                        android:layout_alignParentStart="true"
+                        android:background="@drawable/bg_button"
+                        android:src="@drawable/ic_arrow_left"
+                        android:padding="12dp"
+                        android:contentDescription="Left" />
+
+                    <ImageButton
+                        android:id="@+id/btnDpadRight"
+                        android:layout_width="52dp"
+                        android:layout_height="52dp"
+                        android:layout_centerVertical="true"
+                        android:layout_alignParentEnd="true"
+                        android:background="@drawable/bg_button"
+                        android:src="@drawable/ic_arrow_right"
+                        android:padding="12dp"
+                        android:contentDescription="Right" />
+
+                    <ImageButton
+                        android:id="@+id/btnOk"
+                        android:layout_width="64dp"
+                        android:layout_height="64dp"
+                        android:layout_centerInParent="true"
+                        android:background="@drawable/bg_touchpad"
+                        android:src="@drawable/ic_circle_dot"
+                        android:padding="20dp"
+                        android:contentDescription="OK" />
+
+                </RelativeLayout>
+
+                <FrameLayout
+                    android:id="@+id/layoutTouchpad"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:visibility="gone"
+                    android:background="@drawable/bg_touchpad">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:text="Swipe to navigate&#10;Double-tap to select"
+                        android:textColor="#CCFFFFFF"
+                        android:textSize="12sp"
+                        android:gravity="center" />
+
+                </FrameLayout>
+
+            </FrameLayout>
+
+            <!-- CH column -->
+            <LinearLayout
+                android:layout_width="52dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center">
+
+                <ImageButton
+                    android:id="@+id/btnChUp"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="@drawable/bg_button"
+                    android:src="@drawable/ic_arrow_up"
+                    android:padding="10dp"
+                    android:contentDescription="Channel Up"
+                    android:layout_marginBottom="4dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="CH"
+                    android:textColor="#80FFFFFF"
+                    android:textSize="9sp"
+                    android:gravity="center"
+                    android:layout_marginBottom="4dp" />
+
+                <ImageButton
+                    android:id="@+id/btnChDown"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="@drawable/bg_button"
+                    android:src="@drawable/ic_arrow_down"
+                    android:padding="10dp"
+                    android:contentDescription="Channel Down"
+                    android:layout_marginBottom="4dp" />
+
+                <ImageButton
+                    android:id="@+id/btnToggleNavMode"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="@drawable/bg_button"
+                    android:src="@drawable/ic_tv_minimal"
+                    android:padding="10dp"
+                    android:contentDescription="Toggle nav mode" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- Row 3: Back | Home | Source -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp">
+
+            <ImageButton
+                android:id="@+id/btnBack"
+                android:layout_width="0dp"
+                android:layout_height="52dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_button"
+                android:src="@drawable/ic_arrow_left"
+                android:padding="12dp"
+                android:contentDescription="Back"
+                android:layout_marginEnd="6dp" />
+
+            <ImageButton
+                android:id="@+id/btnHome"
+                android:layout_width="0dp"
+                android:layout_height="52dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_button"
+                android:src="@drawable/ic_home"
+                android:padding="12dp"
+                android:contentDescription="Home"
+                android:layout_marginEnd="6dp" />
+
+            <ImageButton
+                android:id="@+id/btnSource"
+                android:layout_width="0dp"
+                android:layout_height="52dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_button"
+                android:src="@drawable/ic_monitor_play"
+                android:padding="12dp"
+                android:contentDescription="Source" />
+
+        </LinearLayout>
+
+        <!-- App Shortcuts: 6 customizable slots (2 rows of 3) -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="8dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="6dp">
+
+                <ImageButton android:id="@+id/btnShortcut1"
+                    android:layout_width="0dp" android:layout_height="52dp"
+                    android:layout_weight="1" android:background="@drawable/bg_button"
+                    android:src="@drawable/default_icon"
+                    android:padding="8dp" android:scaleType="fitCenter"
+                    android:contentDescription="Shortcut 1"
+                    android:layout_marginEnd="6dp" />
+
+                <ImageButton android:id="@+id/btnShortcut2"
+                    android:layout_width="0dp" android:layout_height="52dp"
+                    android:layout_weight="1" android:background="@drawable/bg_button"
+                    android:src="@drawable/default_icon"
+                    android:padding="8dp" android:scaleType="fitCenter"
+                    android:contentDescription="Shortcut 2"
+                    android:layout_marginEnd="6dp" />
+
+                <ImageButton android:id="@+id/btnShortcut3"
+                    android:layout_width="0dp" android:layout_height="52dp"
+                    android:layout_weight="1" android:background="@drawable/bg_button"
+                    android:src="@drawable/default_icon"
+                    android:padding="8dp" android:scaleType="fitCenter"
+                    android:contentDescription="Shortcut 3" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <ImageButton android:id="@+id/btnShortcut4"
+                    android:layout_width="0dp" android:layout_height="52dp"
+                    android:layout_weight="1" android:background="@drawable/bg_button"
+                    android:src="@drawable/default_icon"
+                    android:padding="8dp" android:scaleType="fitCenter"
+                    android:contentDescription="Shortcut 4"
+                    android:layout_marginEnd="6dp" />
+
+                <ImageButton android:id="@+id/btnShortcut5"
+                    android:layout_width="0dp" android:layout_height="52dp"
+                    android:layout_weight="1" android:background="@drawable/bg_button"
+                    android:src="@drawable/default_icon"
+                    android:padding="8dp" android:scaleType="fitCenter"
+                    android:contentDescription="Shortcut 5"
+                    android:layout_marginEnd="6dp" />
+
+                <ImageButton android:id="@+id/btnShortcut6"
+                    android:layout_width="0dp" android:layout_height="52dp"
+                    android:layout_weight="1" android:background="@drawable/bg_button"
+                    android:src="@drawable/default_icon"
+                    android:padding="8dp" android:scaleType="fitCenter"
+                    android:contentDescription="Shortcut 6" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- Bottom Action Row: Apps | Cast | Keyboard | Number | Voice | ToggleVol -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:id="@+id/btnApps"
+                android:layout_width="0dp"
+                android:layout_height="52dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_button"
+                android:src="@drawable/ic_grid_2x2"
+                android:padding="12dp"
+                android:contentDescription="Apps"
+                android:layout_marginEnd="4dp" />
+
+            <ImageButton
+                android:id="@+id/btnCast"
+                android:layout_width="0dp"
+                android:layout_height="52dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_button"
+                android:src="@drawable/ic_cast"
+                android:padding="12dp"
+                android:contentDescription="Cast"
+                android:layout_marginEnd="4dp" />
+
+            <ImageButton
+                android:id="@+id/btnKeyboard"
+                android:layout_width="0dp"
+                android:layout_height="52dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_button"
+                android:src="@drawable/ic_keyboard"
+                android:padding="12dp"
+                android:contentDescription="Keyboard"
+                android:layout_marginEnd="4dp" />
+
+            <ImageButton
+                android:id="@+id/btnNumberPad"
+                android:layout_width="0dp"
+                android:layout_height="52dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_button"
+                android:text="123"
+                android:textColor="#FFFFFF"
+                android:textSize="18sp"
+                android:contentDescription="Number Pad" />
+
+            <ImageButton
+                android:id="@+id/btnVoice"
+                android:layout_width="0dp"
+                android:layout_height="52dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_button"
+                android:src="@drawable/ic_mic"
+                android:padding="12dp"
+                android:contentDescription="Voice Command"
+                android:layout_marginEnd="4dp" />
+
+            <ImageButton
+                android:id="@+id/btnToggleVolume"
+                android:layout_width="0dp"
+                android:layout_height="52dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_button"
+                android:text="SLD"
+                android:textColor="#FFFFFF"
+                android:textSize="12sp"
+                android:contentDescription="Toggle Volume Slider" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>

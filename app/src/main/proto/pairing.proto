@@ -1,0 +1,72 @@
+syntax = "proto3";
+
+option java_package = "com.mctrash692.freemote.remote.androidtv.proto";
+option java_outer_classname = "PairingProto";
+option java_multiple_files = false;
+
+message PairingMessage {
+    PairingRequestMessage    pairing_request    = 1;
+    PairingRequestAckMessage pairing_request_ack = 2;
+    OptionsMessage           options            = 10;
+    OptionAckMessage         option_ack         = 11;
+    ConfigurationMessage     configuration      = 12;
+    ConfigurationAckMessage  configuration_ack  = 13;
+    SecretMessage            secret             = 20;
+    SecretAckMessage         secret_ack         = 21;
+    PairingStatus            status             = 100;
+}
+
+message PairingRequestMessage {
+    string service_name = 1;
+    string client_name  = 2;
+}
+
+message PairingRequestAckMessage {}
+
+message OptionsMessage {
+    repeated EncodingOption input_encodings  = 1;
+    repeated EncodingOption output_encodings = 2;
+    RoleType preferred_role = 3;
+}
+
+message OptionAckMessage {}
+
+message ConfigurationMessage {
+    EncodingOption encoding = 1;
+    RoleType client_role    = 2;
+}
+
+message ConfigurationAckMessage {}
+
+message SecretMessage {
+    bytes secret = 1;
+}
+
+message SecretAckMessage {
+    bytes secret = 1;
+}
+
+message EncodingOption {
+    EncodingType type       = 1;
+    int32        symbol_length = 2;
+}
+
+enum PairingStatus {
+    STATUS_UNKNOWN = 0;
+    STATUS_OK      = 200;
+    STATUS_ERROR   = 400;
+}
+
+enum RoleType {
+    ROLE_TYPE_UNKNOWN  = 0;
+    ROLE_TYPE_INPUT    = 1;
+    ROLE_TYPE_OUTPUT   = 2;
+}
+
+enum EncodingType {
+    ENCODING_TYPE_UNKNOWN    = 0;
+    ENCODING_TYPE_ALPHANUMERIC = 1;
+    ENCODING_TYPE_NUMERIC    = 2;
+    ENCODING_TYPE_HEXADECIMAL = 3;
+    ENCODING_TYPE_QRCODE     = 4;
+}

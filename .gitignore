@@ -1,0 +1,36 @@
+# ----- Android / Gradle build output -----
+.gradle/
+build/
+**/build/
+.externalNativeBuild/
+.cxx/
+captures/
+
+# compiled intermediates
+*.ap_
+*.dex
+*.class
+
+# local machine config
+local.properties
+
+# IDE metadata
+.idea/
+*.iml
+
+# temp / OS junk
+*.log
+*.tmp
+*.swp
+.DS_Store
+Thumbs.db
+keystore.properties
+*.jks
+*.keystore
+keystore.properties
+app/build/intermediates/
+app/build/tmp/
+app/build/generated/
+app/build/extracted-include-protos/
+app/build/outputs/logs/
+app/build/outputs/apk/**/output-metadata.json

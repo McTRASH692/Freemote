@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+option java_package = "com.mctrash692.freemote.remote.androidtv.proto";
+option java_outer_classname = "RemoteProto";
+option java_multiple_files = false;
+
+message RemoteMessage {
+    RemoteDirection  direction  = 1;
+    RemoteKeyCode    code       = 2;
+    RemoteAppLinkLaunchRequest app_link_launch_request = 6;
+}
+
+message RemoteDirection {
+    DirectionKey   key_code   = 1;
+    bool           long_press = 2;
+}
+
+message RemoteKeyCode {
+    int32 key_code = 1;
+    bool  long_press = 2;
+}
+
+message RemoteAppLinkLaunchRequest {
+    string app_link = 1;
+}
+
+enum DirectionKey {
+    DPAD_UP    = 0;
+    DPAD_DOWN  = 1;
+    DPAD_LEFT  = 2;
+    DPAD_RIGHT = 3;
+    DPAD_CENTER = 4;
+    BACK       = 5;
+    HOME       = 6;
+}

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Freemote</string>
+    <string name="scanning">Scanning for TVs…</string>
+    <string name="no_devices">No devices found</string>
+    <string name="manual_entry">Enter IP manually</string>
+    <string name="connect">Connect</string>
+    <string name="cancel">Cancel</string>
+    <string name="ip_hint">TV IP address</string>
+    <string name="port_hint">Port</string>
+</resources>

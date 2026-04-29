@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.mctrash692.freemote">
+
+    <!-- Network permissions -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
+
+    <!-- Location permissions (required for WiFi scanning on Android 8+) -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
+    <!-- System permissions -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE" />
+
+    <!-- Storage permissions for logs -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
+
+    <!-- Media permissions for casting/screen recording -->
+    <uses-permission android:name="android.permission.MEDIA_PROJECTION" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.CAPTURE_VIDEO_OUTPUT" />
+    <uses-permission android:name="android.permission.CAPTURE_SECURE_VIDEO_OUTPUT" />
+
+    <!-- Media file access -->
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
+
+    <!-- Vibrate for haptic feedback -->
+    <uses-permission android:name="android.permission.VIBRATE" />
+
+    <!-- Bluetooth permissions for nearby device discovery (Android 12+) -->
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+
+    <!-- Nearby devices permission for Android 12+ -->
+    <uses-permission android:name="android.permission.NEARBY_WIFI_DEVICES" />
+
+    <!-- Post notifications permission for Android 13+ -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher_remote"
+        android:label="Freemote"
+        android:supportsRtl="true"
+        android:theme="@style/Theme_Freemote"
+        android:requestLegacyExternalStorage="true"
+        android:usesCleartextTraffic="true"
+        android:networkSecurityConfig="@xml/network_security_config">
+
+        <activity
+            android:name=".ui.DeviceDiscoveryActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".ui.RemoteActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.SettingsActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.VoiceCommandActivity"
+            android:exported="false"
+            android:theme="@style/Theme_AppCompat_Translucent" />
+
+        <service
+            android:name=".ui.MouseCursorService"
+            android:exported="false" />
+
+        <service
+            android:name=".tv.TvRemoteReceiverService"
+            android:exported="false" />
+
+        <service
+            android:name=".RemoteService"
+            android:foregroundServiceType="connectedDevice"
+            android:exported="false" />
+
+        <service
+            android:name=".ScreenCastingService"
+            android:foregroundServiceType="mediaProjection"
+            android:exported="false" />
+
+    </application>
+
+</manifest>

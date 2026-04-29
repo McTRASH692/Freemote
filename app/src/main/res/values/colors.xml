@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Theme 1: Original (Dark Purple + Green) -->
+    <color name="theme1_bg_dark">#0D1B2A</color>
+    <color name="theme1_bg_medium">#1A2744</color>
+    <color name="theme1_accent">#66BB6A</color>
+    <color name="theme1_text">#FFFFFF</color>
+    <color name="theme1_button">#1A2744</color>
+
+    <!-- Theme 2: Cyberpunk (Neon Blue + Black) -->
+    <color name="theme2_bg_dark">#0A0A0A</color>
+    <color name="theme2_bg_medium">#1A1A2E</color>
+    <color name="theme2_accent">#00D4FF</color>
+    <color name="theme2_text">#FFFFFF</color>
+    <color name="theme2_button">#16213E</color>
+
+    <!-- Theme 3: Sunset (Orange + Purple) -->
+    <color name="theme3_bg_dark">#1A0B1A</color>
+    <color name="theme3_bg_medium">#2D1B4E</color>
+    <color name="theme3_accent">#FF6B35</color>
+    <color name="theme3_text">#FFFFFF</color>
+    <color name="theme3_button">#4A2C6E</color>
+
+    <!-- Theme 4: Forest (Dark Green) -->
+    <color name="theme4_bg_dark">#0A1A0A</color>
+    <color name="theme4_bg_medium">#1A3A1A</color>
+    <color name="theme4_accent">#4CAF50</color>
+    <color name="theme4_text">#FFFFFF</color>
+    <color name="theme4_button">#2E5A2E</color>
+
+    <!-- Theme 5: Midnight (Deep Blue) -->
+    <color name="theme5_bg_dark">#050A15</color>
+    <color name="theme5_bg_medium">#0F1B33</color>
+    <color name="theme5_accent">#2196F3</color>
+    <color name="theme5_text">#FFFFFF</color>
+    <color name="theme5_button">#1A2A4A</color>
+
+    <!-- Theme 6: Amoled Red -->
+    <color name="theme6_bg_dark">#000000</color>
+    <color name="theme6_bg_medium">#1A0000</color>
+    <color name="theme6_accent">#FF1744</color>
+    <color name="theme6_text">#FFFFFF</color>
+    <color name="theme6_button">#2A0000</color>
+
+    <!-- Theme 7: Ocean (Teal + Dark) -->
+    <color name="theme7_bg_dark">#01192B</color>
+    <color name="theme7_bg_medium">#012D44</color>
+    <color name="theme7_accent">#00BCD4</color>
+    <color name="theme7_text">#FFFFFF</color>
+    <color name="theme7_button">#01384F</color>
+
+    <!-- Theme 8: Light - Clean White -->
+    <color name="theme8_bg_dark">#F5F5F5</color>
+    <color name="theme8_bg_medium">#FFFFFF</color>
+    <color name="theme8_accent">#1976D2</color>
+    <color name="theme8_text">#1A1A1A</color>
+    <color name="theme8_button">#E0E0E0</color>
+
+    <!-- Theme 9: Light - Warm Paper -->
+    <color name="theme9_bg_dark">#FFF8F0</color>
+    <color name="theme9_bg_medium">#FFFFFF</color>
+    <color name="theme9_accent">#E65100</color>
+    <color name="theme9_text">#2E1A00</color>
+    <color name="theme9_button">#FFE0C2</color>
+
+    <!-- Theme 10: Purple Haze -->
+    <color name="theme10_bg_dark">#120A1E</color>
+    <color name="theme10_bg_medium">#1E0F33</color>
+    <color name="theme10_accent">#CE93D8</color>
+    <color name="theme10_text">#FFFFFF</color>
+    <color name="theme10_button">#2D1647</color>
+</resources>
