@@ -18,6 +18,7 @@ import android.os.Looper;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.GestureDetector;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -237,9 +238,12 @@ public class RemoteActivity extends BaseActivity {
     }
 
     private void sendAppLaunch(String appId) {
-        if (remoteService != null) {
+        if (remoteService != null && remoteService.isConnected()) {
+            Log.d(TAG, "Sending app launch: " + appId);
             remoteService.sendAppLaunch(appId);
             Toast.makeText(this, "Launching...", Toast.LENGTH_SHORT).show();
+        } else if (remoteService != null) {
+            Toast.makeText(this, "Not connected to TV", Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(this, "Service not ready", Toast.LENGTH_SHORT).show();
         }
@@ -371,13 +375,16 @@ public class RemoteActivity extends BaseActivity {
      * soft keyboard is raised to it automatically. On Send, the text is
      * dispatched via Samsung's SendInputString command which types into
      * whichever input field is currently focused on the TV.
+     *
+     * Also supports direct keyboard input - as you type on the phone keyboard,
+     * each character is sent individually to the TV in real-time.
      */
     private void showKeyboardDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Send Text to TV");
 
         final EditText et = new EditText(this);
-        et.setHint("Type text to send to TV");
+        et.setHint("Type text to send to TV (direct input enabled)");
         et.setSingleLine(false);
         et.setMinLines(2);
         builder.setView(et);
@@ -389,68 +396,201 @@ public class RemoteActivity extends BaseActivity {
         builder.setNegativeButton("Cancel", null);
 
         AlertDialog dialog = builder.create();
-        // Raise the soft keyboard automatically when the dialog opens.
         dialog.setOnShowListener(d -> {
             et.requestFocus();
             InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
             if (imm != null) {
                 imm.showSoftInput(et, InputMethodManager.SHOW_IMPLICIT);
             }
+
+            // Add keyboard listener for direct input to TV
+            et.setOnKeyListener((v, keyCode, event) -> {
+                if (event.getAction() == KeyEvent.ACTION_DOWN) {
+                    handleKeyboardDirectInput(keyCode, event);
+                }
+                return false;
+            });
         });
         dialog.show();
+    }
+
+    /**
+     * Handles direct keyboard input - sends individual key presses to the TV
+     * in real-time as the user types.
+     */
+    private void handleKeyboardDirectInput(int keyCode, KeyEvent event) {
+        int keyChar = event.getUnicodeChar();
+
+        if (keyCode == KeyEvent.KEYCODE_DEL) {
+            // Send backspace to TV
+            sendKey("KEY_BACKSPACE");
+            Log.d(TAG, "Sent backspace to TV");
+        } else if (keyCode == KeyEvent.KEYCODE_ENTER) {
+            // Send enter to TV
+            sendKey("KEY_ENTER");
+            Log.d(TAG, "Sent enter to TV");
+        } else if (keyCode == KeyEvent.KEYCODE_SPACE) {
+            // Send space character
+            sendCharacterToTV(' ');
+            Log.d(TAG, "Sent space to TV");
+        } else if (keyChar > 0 && keyChar != '\n') {
+            // Send the character directly to the TV
+            sendCharacterToTV((char) keyChar);
+            Log.d(TAG, "Sent character '" + ((char) keyChar) + "' to TV");
+        }
+    }
+
+    /**
+     * Sends a single character to the TV as a text input string.
+     */
+    private void sendCharacterToTV(char c) {
+        sendInputString(String.valueOf(c));
     }
 
     // ── Touchpad ─────────────────────────────────────────────────────────────
 
     private void setupTouchpad() {
-        touchpadGestureDetector = new GestureDetector(this,
-            new GestureDetector.SimpleOnGestureListener() {
-
-                @Override
-                public boolean onScroll(MotionEvent e1, MotionEvent e2,
-                                        float distanceX, float distanceY) {
-                    // Map swipe direction to D-pad keys and move the cursor overlay.
-                    int dx = Math.round(-distanceX);
-                    int dy = Math.round(-distanceY);
-
-                    // Send cursor move to overlay service (best-effort — may not be running).
-                    Intent moveIntent = new Intent(RemoteActivity.this, MouseCursorService.class);
-                    moveIntent.putExtra("action", "MOVE");
-                    moveIntent.putExtra("dx", dx * 3);
-                    moveIntent.putExtra("dy", dy * 3);
-                    startService(moveIntent);
-
-                    // Also send D-pad keys so navigation works without overlay permission.
-                    if (Math.abs(distanceX) > Math.abs(distanceY)) {
-                        sendKey(distanceX > 0 ? "KEY_LEFT" : "KEY_RIGHT");
-                    } else {
-                        sendKey(distanceY > 0 ? "KEY_UP" : "KEY_DOWN");
-                    }
-                    return true;
-                }
-
-                @Override
-                public boolean onDoubleTap(MotionEvent e) {
-                    // Double-tap = select / OK.
-                    sendKey("KEY_ENTER");
-                    Intent clickIntent = new Intent(RemoteActivity.this, MouseCursorService.class);
-                    clickIntent.putExtra("action", "CLICK");
-                    startService(clickIntent);
-                    return true;
-                }
-
-                @Override
-                public boolean onSingleTapConfirmed(MotionEvent e) {
-                    sendKey("KEY_ENTER");
-                    return true;
-                }
-            });
-
         layoutTouchpad.setOnTouchListener((v, event) -> {
             if (!isTouchpadMode) return false;
-            touchpadGestureDetector.onTouchEvent(event);
-            return true;
+
+            int pointerCount = event.getPointerCount();
+            int action = event.getActionMasked();
+
+            switch (action) {
+                case MotionEvent.ACTION_MOVE:
+                    if (pointerCount == 1) {
+                        // Single finger: mouse move
+                        handleSingleFingerMove(event);
+                    } else if (pointerCount == 2) {
+                        // Two fingers: track for scroll/wheel
+                        handleTwoFingerGesture(event);
+                    }
+                    return true;
+
+                case MotionEvent.ACTION_DOWN:
+                    // Record initial touch for gestures
+                    lastTouchX = event.getX();
+                    lastTouchY = event.getY();
+                    lastTouchTime = System.currentTimeMillis();
+                    touchDownPointerCount = pointerCount;
+                    return true;
+
+                case MotionEvent.ACTION_POINTER_DOWN:
+                    if (pointerCount == 2) {
+                        // Two finger touch started
+                        lastTwoFingerDistance = getTwoFingerDistance(event);
+                    }
+                    return true;
+
+                case MotionEvent.ACTION_UP:
+                case MotionEvent.ACTION_POINTER_UP:
+                    if (pointerCount == 1 && touchDownPointerCount == 1) {
+                        handleSingleTapRelease(event);
+                    } else if (pointerCount == 2 && touchDownPointerCount == 2) {
+                        // Two finger tap: mouse wheel click
+                        sendMouseClick("Center");
+                        Log.d(TAG, "Two-finger tap (wheel click)");
+                    }
+                    return true;
+            }
+
+            return false;
         });
+    }
+
+    private float lastTouchX = 0;
+    private float lastTouchY = 0;
+    private long lastTouchTime = 0;
+    private int touchDownPointerCount = 0;
+    private float lastTwoFingerDistance = 0;
+    private long lastTapTime = 0;
+    private static final long DOUBLE_TAP_TIMEOUT = 300;
+    private static final long LONG_PRESS_TIMEOUT = 500;
+
+    private void handleSingleFingerMove(MotionEvent event) {
+        float currentX = event.getX();
+        float currentY = event.getY();
+
+        float deltaX = currentX - lastTouchX;
+        float deltaY = currentY - lastTouchY;
+
+        if (Math.abs(deltaX) > 2 || Math.abs(deltaY) > 2) {
+            // Send mouse move to TV (scale for sensitivity)
+            int scaledDX = Math.round(deltaX * 1.5f);
+            int scaledDY = Math.round(deltaY * 1.5f);
+            if (remoteService != null && remoteService.isConnected()) {
+                remoteService.sendMouseMove(scaledDX, scaledDY);
+            }
+
+            lastTouchX = currentX;
+            lastTouchY = currentY;
+        }
+    }
+
+    private void handleTwoFingerGesture(MotionEvent event) {
+        if (event.getPointerCount() < 2) return;
+
+        float currentDistance = getTwoFingerDistance(event);
+
+        if (lastTwoFingerDistance > 0) {
+            float deltaDist = currentDistance - lastTwoFingerDistance;
+
+            if (Math.abs(deltaDist) > 5) {
+                // Two finger swipe for mouse wheel scroll
+                int scrollAmount = Math.round(deltaDist);
+                if (remoteService != null && remoteService.isConnected()) {
+                    remoteService.sendMouseWheel(scrollAmount);
+                }
+                Log.d(TAG, "Wheel scroll: " + scrollAmount);
+            }
+        }
+
+        lastTwoFingerDistance = currentDistance;
+    }
+
+    private float getTwoFingerDistance(MotionEvent event) {
+        if (event.getPointerCount() < 2) return 0;
+        float x = event.getX(0) - event.getX(1);
+        float y = event.getY(0) - event.getY(1);
+        return (float) Math.sqrt(x * x + y * y);
+    }
+
+    private void handleSingleTapRelease(MotionEvent event) {
+        long currentTime = System.currentTimeMillis();
+        long timeSinceLast = currentTime - lastTapTime;
+
+        if (remoteService == null || !remoteService.isConnected()) return;
+
+        // Check for double tap
+        if (timeSinceLast < DOUBLE_TAP_TIMEOUT) {
+            // Double tap: double left click
+            remoteService.sendMouseClick("Left");
+            remoteService.sendMouseClick("Left");
+            Log.d(TAG, "Double tap (double left click)");
+            lastTapTime = 0; // Reset to prevent triple tap
+        } else {
+            // Single tap: left click
+            remoteService.sendMouseClick("Left");
+            Log.d(TAG, "Single tap (left click)");
+            lastTapTime = currentTime;
+
+            // Schedule long press detection
+            layoutTouchpad.postDelayed(() -> {
+                if (System.currentTimeMillis() - lastTapTime >= LONG_PRESS_TIMEOUT) {
+                    // Long press detected: right click
+                    if (remoteService != null && remoteService.isConnected()) {
+                        remoteService.sendMouseClick("Right");
+                        Log.d(TAG, "Long press (right click)");
+                    }
+                }
+            }, LONG_PRESS_TIMEOUT);
+        }
+    }
+
+    private void sendMouseClick(String button) {
+        if (remoteService != null && remoteService.isConnected()) {
+            remoteService.sendMouseClick(button);
+        }
     }
 
     // ── Nav mode toggle ──────────────────────────────────────────────────────
@@ -460,15 +600,7 @@ public class RemoteActivity extends BaseActivity {
         layoutDpad.setVisibility(isTouchpadMode ? View.GONE : View.VISIBLE);
         layoutTouchpad.setVisibility(isTouchpadMode ? View.VISIBLE : View.GONE);
 
-        // Start/stop the cursor overlay service alongside the mode switch.
-        Intent cursorIntent = new Intent(this, MouseCursorService.class);
-        if (isTouchpadMode) {
-            cursorIntent.putExtra("action", "SHOW");
-            startService(cursorIntent);
-        } else {
-            cursorIntent.putExtra("action", "HIDE");
-            startService(cursorIntent);
-        }
+        Toast.makeText(this, isTouchpadMode ? "Touchpad mode ON" : "D-Pad mode ON", Toast.LENGTH_SHORT).show();
     }
 
     // ── Shortcuts ────────────────────────────────────────────────────────────

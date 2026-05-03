@@ -169,15 +169,39 @@ public class RemoteService extends Service {
     }
 
     public void sendAppLaunch(String appId) {
-        if (samsungRemote != null) {
-            // N9: use the managed executor instead of spawning an unbounded raw Thread.
-            httpExecutor.submit(() -> samsungRemote.sendAppLaunchSync(appId));
+        if (samsungRemote != null && samsungRemote.isConnected()) {
+            Log.d(TAG, "Launching app: " + appId);
+            // Use the managed executor instead of spawning an unbounded raw Thread.
+            httpExecutor.submit(() -> {
+                Log.d(TAG, "App launch executing: " + appId);
+                samsungRemote.sendAppLaunchSync(appId);
+            });
+        } else {
+            Log.w(TAG, "Cannot launch app - not connected to TV");
         }
     }
 
     public void sendInputString(String text) {
         if (samsungRemote != null && samsungRemote.isConnected()) {
             samsungRemote.sendInputString(text);
+        }
+    }
+
+    public void sendMouseMove(int deltaX, int deltaY) {
+        if (samsungRemote != null && samsungRemote.isConnected()) {
+            samsungRemote.sendMouseMove(deltaX, deltaY);
+        }
+    }
+
+    public void sendMouseClick(String button) {
+        if (samsungRemote != null && samsungRemote.isConnected()) {
+            samsungRemote.sendMouseClick(button);
+        }
+    }
+
+    public void sendMouseWheel(int deltaY) {
+        if (samsungRemote != null && samsungRemote.isConnected()) {
+            samsungRemote.sendMouseWheel(deltaY);
         }
     }
 

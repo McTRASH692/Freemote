@@ -163,8 +163,11 @@ public class SamsungRemote {
      * Must be called from a background thread (RemoteService uses its httpExecutor).
      */
     public void sendAppLaunchSync(String appId) {
+        Log.d(TAG, "Starting app launch sync for app: " + appId);
         try {
-            URL url = new URL("http://" + ip + ":8001/api/v2/applications/" + appId);
+            String urlStr = "http://" + ip + ":8001/api/v2/applications/" + appId;
+            Log.d(TAG, "App launch URL: " + urlStr);
+            URL url = new URL(urlStr);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
             conn.setConnectTimeout(3000);
@@ -172,6 +175,11 @@ public class SamsungRemote {
             conn.connect();
             int code = conn.getResponseCode();
             Log.d(TAG, "App launch [" + appId + "] response: " + code);
+            if (code >= 200 && code < 300) {
+                Log.d(TAG, "App launch SUCCESS: " + appId);
+            } else {
+                Log.w(TAG, "App launch unexpected response code: " + code);
+            }
             conn.disconnect();
         } catch (Exception e) {
             Log.e(TAG, "REST app launch error [" + appId + "]", e);
@@ -200,6 +208,82 @@ public class SamsungRemote {
             Log.d(TAG, "Sent input string: " + text);
         } catch (JSONException e) {
             Log.e(TAG, "sendInputString error", e);
+        }
+    }
+
+    /**
+     * Sends mouse movement to the TV.
+     * @param deltaX horizontal movement (positive = right)
+     * @param deltaY vertical movement (positive = down)
+     */
+    public void sendMouseMove(int deltaX, int deltaY) {
+        if (!connected || webSocket == null) {
+            Log.w(TAG, "sendMouseMove: not connected");
+            return;
+        }
+        try {
+            JSONObject params = new JSONObject()
+                .put("Cmd",          "Move")
+                .put("DataOfCmd",    "x:" + deltaX + " y:" + deltaY)
+                .put("Option",       "false")
+                .put("TypeOfRemote", "SendMouse");
+            JSONObject message = new JSONObject()
+                .put("method", "ms.remote.control")
+                .put("params", params);
+            webSocket.send(message.toString());
+            Log.d(TAG, "Sent mouse move: dx=" + deltaX + ", dy=" + deltaY);
+        } catch (JSONException e) {
+            Log.e(TAG, "sendMouseMove error", e);
+        }
+    }
+
+    /**
+     * Sends a mouse click to the TV.
+     * @param button "Left" for left click, "Right" for right click, "Center" for middle click
+     */
+    public void sendMouseClick(String button) {
+        if (!connected || webSocket == null) {
+            Log.w(TAG, "sendMouseClick: not connected");
+            return;
+        }
+        try {
+            JSONObject params = new JSONObject()
+                .put("Cmd",          "Click")
+                .put("DataOfCmd",    button)
+                .put("Option",       "false")
+                .put("TypeOfRemote", "SendMouse");
+            JSONObject message = new JSONObject()
+                .put("method", "ms.remote.control")
+                .put("params", params);
+            webSocket.send(message.toString());
+            Log.d(TAG, "Sent mouse click: " + button);
+        } catch (JSONException e) {
+            Log.e(TAG, "sendMouseClick error", e);
+        }
+    }
+
+    /**
+     * Sends mouse wheel scroll to the TV.
+     * @param deltaY scroll amount (positive = up, negative = down)
+     */
+    public void sendMouseWheel(int deltaY) {
+        if (!connected || webSocket == null) {
+            Log.w(TAG, "sendMouseWheel: not connected");
+            return;
+        }
+        try {
+            JSONObject params = new JSONObject()
+                .put("Cmd",          "Scroll")
+                .put("DataOfCmd",    "y:" + deltaY)
+                .put("Option",       "false")
+                .put("TypeOfRemote", "SendMouse");
+            JSONObject message = new JSONObject()
+                .put("method", "ms.remote.control")
+                .put("params", params);
+            webSocket.send(message.toString());
+            Log.d(TAG, "Sent mouse wheel: dy=" + deltaY);
+        } catch (JSONException e) {
+            Log.e(TAG, "sendMouseWheel error", e);
         }
     }
 

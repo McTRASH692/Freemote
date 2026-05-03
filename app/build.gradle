@@ -35,6 +35,10 @@ android {
         viewBinding true
     }
 
+    lint {
+        disable 'ProtectedPermissions'
+    }
+
     sourceSets {
         main {
             proto {
