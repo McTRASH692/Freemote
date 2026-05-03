@@ -48,3 +48,6 @@ app/build/
 keystore.properties
 local.properties
 **/build/
+.aider*
+*.apk
+*.apk
