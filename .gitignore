@@ -51,3 +51,6 @@ local.properties
 .aider*
 *.apk
 *.apk
+keystore.properties
+*.keystore
+*.jks

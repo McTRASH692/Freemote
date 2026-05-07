@@ -5,6 +5,7 @@
 ![License](https://img.shields.io/badge/license-MIT-blue)
 ![Language](https://img.shields.io/badge/language-Java-red)
 ![Build](https://img.shields.io/badge/build-Gradle-brightgreen)
+[![Download](https://img.shields.io/github/v/release/McTRASH692/Freemote?label=Download&style=for-the-badge)](https://github.com/McTRASH692/Freemote/releases/latest)
 
 > **Work in Progress**  
 > Freemote is actively under development. Some features may be incomplete, unstable, experimental, or currently non-functional.
