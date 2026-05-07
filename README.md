@@ -14,6 +14,9 @@ Freemote is an open-source Android remote-control application focused on wireles
 
 ## Features
 
+> **⚠️ Note:** Android/Google TV support is currently in development. The app has been tested and confirmed working on Samsung Tizen TVs. Android TV functionality is implemented but not yet fully tested.
+
+
 - Wireless remote control interface
 - Display interaction tools
 - Mobile-first Android UI
