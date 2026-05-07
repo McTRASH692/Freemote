@@ -117,7 +117,6 @@ public class SsdpDiscovery {
 
         for (int port : ports) {
             HttpURLConnection conn = null;
-            // FIX (bug 11): declare reader outside the if-block so it is always closed.
             BufferedReader reader = null;
             try {
                 URL url = new URL("http://" + ip + ":" + port + "/api/v2/");
@@ -155,7 +154,6 @@ public class SsdpDiscovery {
             } catch (Exception e) {
                 Log.d(TAG, "API query failed for port " + port + ": " + e.getMessage());
             } finally {
-                // FIX (bug 11): always close reader if it was opened.
                 if (reader != null) {
                     try { reader.close(); } catch (IOException ignored) {}
                 }

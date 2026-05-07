@@ -125,15 +125,15 @@ public class MouseCursorService extends Service {
     }
 
     public void moveCursor(int deltaX, int deltaY) {
+        if (windowManager == null || cursorView == null) return;
+
         cursorX = Math.max(0, Math.min(cursorX + deltaX, screenWidth));
         cursorY = Math.max(0, Math.min(cursorY + deltaY, screenHeight));
 
         cursorParams.x = cursorX - 32;
         cursorParams.y = cursorY - 32;
 
-        if (windowManager != null && cursorView != null) {
-            windowManager.updateViewLayout(cursorView, cursorParams);
-        }
+        windowManager.updateViewLayout(cursorView, cursorParams);
         showCursor();
     }
 

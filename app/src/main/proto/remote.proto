@@ -5,31 +5,129 @@ option java_outer_classname = "RemoteProto";
 option java_multiple_files = false;
 
 message RemoteMessage {
-    RemoteDirection  direction  = 1;
-    RemoteKeyCode    code       = 2;
-    RemoteAppLinkLaunchRequest app_link_launch_request = 6;
+    oneof payload {
+        RemoteDirection direction = 1;
+        RemoteKeyCode key = 2;
+        RemoteAppLinkLaunchRequest app = 6;
+        KeyboardInput keyboard = 7;
+        MouseInput mouse = 8;
+        MediaControl media = 9;
+        SystemControl system = 10;
+        CapabilityRequest capability_request = 11;
+        CapabilityResponse capability_response = 12;
+    }
 }
 
 message RemoteDirection {
-    DirectionKey   key_code   = 1;
-    bool           long_press = 2;
+    DirectionKey key_code = 1;
+    bool long_press = 2;
 }
 
 message RemoteKeyCode {
-    int32 key_code = 1;
-    bool  long_press = 2;
+    int32 key_value = 1;  // Renamed from key_code to be more descriptive
+    bool long_press = 2;
+}
+
+message KeyboardInput {
+    string text = 1;
+    bool replace_all = 2;
+    bool submit = 3;
+}
+
+message MouseInput {
+    int32 dx = 1;
+    int32 dy = 2;
+    int32 abs_x = 3;
+    int32 abs_y = 4;
+    bool use_absolute = 5;
+    
+    enum Button {
+        NONE = 0;
+        LEFT = 1;
+        RIGHT = 2;
+        MIDDLE = 3;
+        BACK = 4;
+        FORWARD = 5;
+    }
+    
+    Button button = 6;
+    int32 wheel_y = 7;
+    int32 wheel_x = 8;
+    bool tap = 9;
+    bool double_tap = 10;
+    bool long_press = 11;
+    bool drag_start = 12;
+    bool drag_end = 13;
+}
+
+message MediaControl {
+    enum Action {
+        UNKNOWN = 0;
+        PLAY = 1;
+        PAUSE = 2;
+        TOGGLE_PLAY_PAUSE = 3;
+        STOP = 4;
+        NEXT = 5;
+        PREVIOUS = 6;
+        SEEK_FORWARD = 7;
+        SEEK_BACKWARD = 8;
+        VOLUME_UP = 9;
+        VOLUME_DOWN = 10;
+        MUTE_TOGGLE = 11;
+        FAST_FORWARD = 12;
+        REWIND = 13;
+    }
+    Action action = 1;
+    int32 seek_position_ms = 2;
+    int32 volume_level = 3;
+    float progress = 4;
+}
+
+message SystemControl {
+    enum Action {
+        UNKNOWN = 0;
+        POWER_TOGGLE = 1;
+        POWER_OFF = 2;
+        POWER_ON = 3;
+        HOME = 4;
+        BACK = 5;
+        MENU = 6;
+        SETTINGS = 7;
+        SCREEN_OFF = 8;
+        SCREEN_ON = 9;
+        INPUT_SOURCE = 10;
+        RESTART = 11;
+        POINTER_MODE_ON = 12;
+        POINTER_MODE_OFF = 13;
+    }
+    Action action = 1;
 }
 
 message RemoteAppLinkLaunchRequest {
     string app_link = 1;
 }
 
+message CapabilityRequest {
+    bool want_mouse = 1;
+    bool want_keyboard = 2;
+    bool want_media = 3;
+    bool want_system = 4;
+}
+
+message CapabilityResponse {
+    bool supports_mouse = 1;
+    bool supports_keyboard = 2;
+    bool supports_media = 3;
+    bool supports_system = 4;
+    string device_type = 5;
+}
+
 enum DirectionKey {
-    DPAD_UP    = 0;
-    DPAD_DOWN  = 1;
-    DPAD_LEFT  = 2;
-    DPAD_RIGHT = 3;
-    DPAD_CENTER = 4;
-    BACK       = 5;
-    HOME       = 6;
+    UP = 0;  // Renamed for better readability
+    DOWN = 1;
+    LEFT = 2;
+    RIGHT = 3;
+    CENTER = 4;
+    BACK = 5;
+    HOME = 6;
 }

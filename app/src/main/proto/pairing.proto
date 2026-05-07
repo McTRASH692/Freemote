@@ -5,38 +5,65 @@ option java_outer_classname = "PairingProto";
 option java_multiple_files = false;
 
 message PairingMessage {
-    PairingRequestMessage    pairing_request    = 1;
+    PairingRequestMessage pairing_request = 1;
     PairingRequestAckMessage pairing_request_ack = 2;
-    OptionsMessage           options            = 10;
-    OptionAckMessage         option_ack         = 11;
-    ConfigurationMessage     configuration      = 12;
-    ConfigurationAckMessage  configuration_ack  = 13;
-    SecretMessage            secret             = 20;
-    SecretAckMessage         secret_ack         = 21;
-    PairingStatus            status             = 100;
+    OptionsMessage options = 10;
+    OptionAckMessage option_ack = 11;
+    ConfigurationMessage configuration = 12;
+    ConfigurationAckMessage configuration_ack = 13;
+    SecretMessage secret = 20;
+    SecretAckMessage secret_ack = 21;
+    SessionMessage session = 30;
+    SessionAckMessage session_ack = 31;
+    ErrorMessage error = 40;
+    PairingStatus status = 100;
 }
 
 message PairingRequestMessage {
     string service_name = 1;
-    string client_name  = 2;
+    string client_name = 2;
+    DeviceInfo device_info = 3;
 }
 
-message PairingRequestAckMessage {}
+message PairingRequestAckMessage {
+    bool accepted = 1;
+    string reason = 2;
+}
+
+message DeviceInfo {
+    string model_name = 1;
+    string os_type = 2;
+    string manufacturer = 3;
+}
+
+message DeviceCapabilities {
+    bool supports_mouse = 1;
+    bool supports_keyboard = 2;
+    bool supports_voice = 3;
+    bool supports_casting = 4;
+    bool supports_wol = 5;
+    bool supports_media_controls = 6;
+}
 
 message OptionsMessage {
-    repeated EncodingOption input_encodings  = 1;
+    repeated EncodingOption input_encodings = 1;
     repeated EncodingOption output_encodings = 2;
     RoleType preferred_role = 3;
+    DeviceCapabilities capabilities = 4;
 }
 
-message OptionAckMessage {}
+message OptionAckMessage {
+    bool accepted = 1;
+}
 
 message ConfigurationMessage {
     EncodingOption encoding = 1;
-    RoleType client_role    = 2;
+    RoleType client_role = 2;
 }
 
-message ConfigurationAckMessage {}
+message ConfigurationAckMessage {
+    bool success = 1;
+}
 
 message SecretMessage {
     bytes secret = 1;
@@ -46,27 +73,50 @@ message SecretAckMessage {
     bytes secret = 1;
 }
 
+message SessionMessage {
+    string session_id = 1;
+    int64 ttl_ms = 2;
+}
+
+message SessionAckMessage {
+    bool established = 1;
+}
+
+message ErrorMessage {
+    int32 code = 1;
+    string message = 2;
+    
+    enum ErrorType {
+        UNKNOWN = 0;
+        UNSUPPORTED_ENCODING = 1;
+        ROLE_REJECTED = 2;
+        AUTH_FAILED = 3;
+        DEVICE_INCOMPATIBLE = 4;
+    }
+    ErrorType type = 3;
+}
+
 message EncodingOption {
-    EncodingType type       = 1;
-    int32        symbol_length = 2;
+    EncodingType type = 1;
+    int32 symbol_length = 2;
 }
 
 enum PairingStatus {
     STATUS_UNKNOWN = 0;
-    STATUS_OK      = 200;
-    STATUS_ERROR   = 400;
+    STATUS_OK = 200;
+    STATUS_ERROR = 400;
 }
 
 enum RoleType {
-    ROLE_TYPE_UNKNOWN  = 0;
-    ROLE_TYPE_INPUT    = 1;
-    ROLE_TYPE_OUTPUT   = 2;
+    ROLE_TYPE_UNKNOWN = 0;
+    ROLE_TYPE_INPUT = 1;
+    ROLE_TYPE_OUTPUT = 2;
 }
 
 enum EncodingType {
-    ENCODING_TYPE_UNKNOWN    = 0;
+    ENCODING_TYPE_UNKNOWN = 0;
     ENCODING_TYPE_ALPHANUMERIC = 1;
-    ENCODING_TYPE_NUMERIC    = 2;
+    ENCODING_TYPE_NUMERIC = 2;
     ENCODING_TYPE_HEXADECIMAL = 3;
-    ENCODING_TYPE_QRCODE     = 4;
+    ENCODING_TYPE_QRCODE = 4;
 }

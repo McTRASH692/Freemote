@@ -37,7 +37,8 @@ public class NetworkScanner {
         this.onDeviceFound = onDeviceFound;
     }
 
-    public void scanNetwork(String subnet) {
+    public synchronized void scanNetwork(String subnet) {
+        if (!isRunning) return;
         isRunning = true;
         executor = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
 
@@ -74,7 +75,7 @@ public class NetworkScanner {
         }
     }
 
-    public void stop() {
+    public synchronized void stop() {
         isRunning = false;
         if (executor != null) {
             executor.shutdownNow();

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.mctrash692.freemote">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!-- Network permissions -->
     <uses-permission android:name="android.permission.INTERNET" />
@@ -8,7 +7,7 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
 
-    <!-- Location permissions (required for WiFi scanning on Android 8+) -->
+    <!-- Location permissions -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
@@ -18,37 +17,35 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
 
-    <!-- Storage permissions for logs -->
+    <!-- Storage permissions -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
 
-    <!-- Media permissions for casting/screen recording -->
+    <!-- Media / projection -->
     <uses-permission android:name="android.permission.MEDIA_PROJECTION" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.CAPTURE_VIDEO_OUTPUT" />
     <uses-permission android:name="android.permission.CAPTURE_SECURE_VIDEO_OUTPUT" />
 
-    <!-- Media file access -->
+    <!-- Media access -->
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
     <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
 
-    <!-- Vibrate for haptic feedback -->
+    <!-- Misc -->
     <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
-    <!-- Bluetooth permissions for nearby device discovery (Android 12+) -->
+    <!-- Bluetooth -->
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
 
-    <!-- Nearby devices permission for Android 12+ -->
+    <!-- Nearby devices -->
     <uses-permission android:name="android.permission.NEARBY_WIFI_DEVICES" />
-
-    <!-- Post notifications permission for Android 13+ -->
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
         android:allowBackup="true"
@@ -60,6 +57,7 @@
         android:usesCleartextTraffic="true"
         android:networkSecurityConfig="@xml/network_security_config">
 
+        <!-- Discovery Activity (LAUNCHER) -->
         <activity
             android:name=".ui.DeviceDiscoveryActivity"
             android:exported="true">
@@ -69,23 +67,26 @@
             </intent-filter>
         </activity>
 
-        <activity
-            android:name=".ui.RemoteActivity"
-            android:exported="false" />
+        <!-- Remote Control Activity -->
+        <activity android:name=".ui.RemoteActivity" android:exported="false" />
 
-        <activity
-            android:name=".ui.SettingsActivity"
-            android:exported="false" />
+        <!-- Settings Activity -->
+        <activity android:name=".ui.SettingsActivity" android:exported="false" />
 
+        <!-- Device Management Activities -->
+        <activity android:name=".ui.DeviceManagementActivity" android:exported="false" />
+        <activity android:name=".ui.DeviceEditActivity" android:exported="false" />
+
+        <!-- Theme Activities -->
+        <activity android:name=".ui.CustomThemeActivity" android:exported="false" />
+
+        <!-- Voice Command Activity -->
         <activity
             android:name=".ui.VoiceCommandActivity"
             android:exported="false"
             android:theme="@style/Theme_AppCompat_Translucent" />
 
-        <activity
-            android:name=".ui.CustomThemeActivity"
-            android:exported="false" />
-
+        <!-- Services -->
         <service
             android:name=".ui.MouseCursorService"
             android:exported="false" />

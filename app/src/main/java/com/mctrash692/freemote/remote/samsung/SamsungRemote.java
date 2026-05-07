@@ -3,13 +3,18 @@ package com.mctrash692.freemote.remote.samsung;
 import android.util.Base64;
 import android.util.Log;
 
+import com.mctrash692.freemote.remote.RemoteController;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.cert.X509Certificate;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
@@ -21,51 +26,58 @@ import okhttp3.Response;
 import okhttp3.WebSocket;
 import okhttp3.WebSocketListener;
 
-public class SamsungRemote {
+public class SamsungRemote implements RemoteController {
+
     private static final String TAG = "SamsungRemote";
     private static final int PORT_WSS = 8002;
-    private static final int PORT_WS  = 8001;
-    private static final String APP_NAME_B64 =
-        Base64.encodeToString("Freemote".getBytes(), Base64.NO_WRAP);
+    private static final int PORT_WS = 8001;
+    private static final String APP_NAME = "Freemote";
+    private static final String APP_NAME_B64 = Base64.encodeToString(APP_NAME.getBytes(), Base64.NO_WRAP);
 
-    // ── Verified working app IDs (tested via curl POST to port 8001) ─────────
-    // curl -X POST "http://$TV_IP:8001/api/v2/applications/<id>"  → returns true
-    public static final String APP_YOUTUBE  = "111299001912";   // YouTube
-    public static final String APP_PRIME    = "3201512006785";  // Prime Video
-    public static final String APP_DISNEY   = "3201901017640";  // Disney+
-    public static final String APP_SPOTIFY  = "3201606009684";  // Spotify
-    public static final String APP_HBOMAX   = "3202301029760";  // HBO Max
-    public static final String APP_NETFLIX  = "3201907018807";  // Netflix
-    // ── Legacy / non-verified IDs kept for Settings shortcuts ────────────────
-    public static final String APP_PLEX     = "3201512006963";
-    public static final String APP_KODI     = "org.xbmc.kodi";
-    public static final String APP_APPLETV  = "3201807016597";
-    public static final String APP_CAST     = "3202203026841";
+    // Verified App IDs for Samsung Tizen TVs (March 2026)
+    public static final String APP_YOUTUBE = "111299001912";
+    public static final String APP_PRIME = "3201512006785";
+    public static final String APP_DISNEY = "3201901017640";
+    public static final String APP_NETFLIX = "11101200001";
+    public static final String APP_HBOMAX = "3202301029760";
+    public static final String APP_PLEX = "3201512006963";
+    public static final String APP_KODI = "org.xbmc.kodi";
+    public static final String APP_APPLETV = "3201807016597";
+    public static final String APP_SPOTIFY = "3201606009684";
 
-    public interface Listener {
-        void onConnected();
-        void onTokenReceived(String token);
-        void onDisconnected(String reason);
-        void onError(String message);
+    private enum ConnectionMethod {
+        OKHTTP,      // Primary - OkHttp WebSocket
+        LEGACY_WS,   // Fallback 1 - SamsungWebSocket
+        REST_API     // Fallback 2 - HTTP REST calls only
     }
 
-    private final String   ip;
-    private final String   savedToken;
+    private final String ip;
+    private final String savedToken;
     private final Listener listener;
-    private OkHttpClient   client;
-    private WebSocket      webSocket;
-    // volatile so main-thread reads see writes from OkHttp's callback thread.
-    private volatile boolean connected = false;
+    
+    private OkHttpClient okHttpClient;
+    private WebSocket okHttpWebSocket;
+    private SamsungWebSocket legacyWebSocket;
+    private String currentToken;
+    private ConnectionMethod activeMethod = null;
+    private final AtomicBoolean connected = new AtomicBoolean(false);
+    private boolean deviceInfoFetched = false;
 
     public SamsungRemote(String ip, String savedToken, Listener listener) {
-        this.ip         = ip;
+        this.ip = ip;
         this.savedToken = savedToken;
-        this.listener   = listener;
+        this.listener = listener;
+        this.currentToken = savedToken;
     }
 
-    public void connect() { connectWithPort(PORT_WSS, true); }
+    @Override
+    public void connect() {
+        connectWithOkHttp(PORT_WSS, true);
+    }
 
-    private void connectWithPort(int port, boolean secure) {
+    private void connectWithOkHttp(int port, boolean secure) {
+        activeMethod = ConnectionMethod.OKHTTP;
+        
         try {
             OkHttpClient.Builder builder = new OkHttpClient.Builder()
                 .readTimeout(0, TimeUnit.MILLISECONDS)
@@ -77,217 +89,115 @@ public class SamsungRemote {
                        .hostnameVerifier((hostname, session) -> true);
             }
 
-            client = builder.build();
+            this.okHttpClient = builder.build();
+
             String scheme = secure ? "wss" : "ws";
             StringBuilder url = new StringBuilder()
                 .append(scheme).append("://").append(ip).append(":").append(port)
                 .append("/api/v2/channels/samsung.remote.control")
                 .append("?name=").append(APP_NAME_B64);
 
-            if (savedToken != null && !savedToken.isEmpty()) {
-                url.append("&token=").append(savedToken);
+            if (currentToken != null && !currentToken.isEmpty()) {
+                url.append("&token=").append(currentToken);
             }
 
-            Log.d(TAG, "Connecting to: " + url);
+            Log.d(TAG, "OkHttp connecting to: " + url);
             Request request = new Request.Builder().url(url.toString()).build();
 
-            client.newWebSocket(request, new WebSocketListener() {
-                @Override public void onOpen(WebSocket ws, Response response) {
-                    webSocket = ws;
-                    connected = true;
-                    Log.d(TAG, "Connected on port " + port);
-                    if (listener != null) listener.onConnected();
-                }
-                @Override public void onMessage(WebSocket ws, String text) {
-                    Log.d(TAG, "Message: " + text);
-                    handleMessage(text);
-                }
-                @Override public void onFailure(WebSocket ws, Throwable t, Response response) {
-                    connected = false;
-                    Log.e(TAG, "Failure on port " + port + ": " + t.getMessage());
-                    if (secure) {
-                        connectWithPort(PORT_WS, false);
-                    } else if (listener != null) {
-                        listener.onError("Connection failed: " + t.getMessage());
-                    }
-                }
-                @Override public void onClosed(WebSocket ws, int code, String reason) {
-                    connected = false;
-                    if (listener != null) listener.onDisconnected(reason);
-                }
-            });
+            this.okHttpClient.newWebSocket(request, new OkHttpWebSocketListener(port, secure));
 
         } catch (Exception e) {
-            Log.e(TAG, "Connect exception", e);
+            Log.e(TAG, "OkHttp connect exception", e);
+            fallbackToLegacyWebSocket();
+        }
+    }
+
+    private class OkHttpWebSocketListener extends WebSocketListener {
+        private final int port;
+        private final boolean secure;
+        
+        OkHttpWebSocketListener(int port, boolean secure) {
+            this.port = port;
+            this.secure = secure;
+        }
+        
+        @Override
+        public void onOpen(WebSocket ws, Response response) {
+            okHttpWebSocket = ws;
+            connected.set(true);
+            Log.d(TAG, "OkHttp connected on port " + port);
+            if (listener != null) {
+                listener.onConnected();
+                // Fetch device info after connection
+                fetchDeviceInfo();
+            }
+        }
+
+        @Override
+        public void onMessage(WebSocket ws, String text) {
+            Log.d(TAG, "OkHttp message: " + text);
+            handleMessage(text);
+        }
+
+        @Override
+        public void onFailure(WebSocket ws, Throwable t, Response response) {
+            connected.set(false);
+            Log.e(TAG, "OkHttp failure on port " + port + ": " + t.getMessage());
             if (secure) {
-                connectWithPort(PORT_WS, false);
-            } else if (listener != null) {
-                listener.onError(e.getMessage());
-            }
-        }
-    }
-
-    public void disconnect() {
-        connected = false;
-        if (webSocket != null) webSocket.close(1000, "User disconnected");
-    }
-
-    public boolean isConnected() { return connected; }
-
-    public void sendKey(String keyCode) {
-        if (!connected || webSocket == null) {
-            Log.w(TAG, "sendKey: not connected");
-            return;
-        }
-        String mappedKey = keyCode;
-        if ("KEY_VOLUMEUP".equals(keyCode))   mappedKey = "KEY_VOLUP";
-        if ("KEY_VOLUMEDOWN".equals(keyCode)) mappedKey = "KEY_VOLDOWN";
-        try {
-            JSONObject params = new JSONObject()
-                .put("Cmd",          "Click")
-                .put("DataOfCmd",    mappedKey)
-                .put("Option",       "false")
-                .put("TypeOfRemote", "SendRemoteKey");
-            JSONObject message = new JSONObject()
-                .put("method", "ms.remote.control")
-                .put("params", params);
-            webSocket.send(message.toString());
-            Log.d(TAG, "Sent key: " + mappedKey);
-        } catch (JSONException e) {
-            Log.e(TAG, "sendKey error", e);
-        }
-    }
-
-    /**
-     * Blocking HTTP POST to the Tizen REST app-launch endpoint.
-     * Must be called from a background thread (RemoteService uses its httpExecutor).
-     */
-    public void sendAppLaunchSync(String appId) {
-        Log.d(TAG, "Starting app launch sync for app: " + appId);
-        try {
-            String urlStr = "http://" + ip + ":8001/api/v2/applications/" + appId;
-            Log.d(TAG, "App launch URL: " + urlStr);
-            URL url = new URL(urlStr);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("POST");
-            conn.setConnectTimeout(3000);
-            conn.setReadTimeout(3000);
-            conn.connect();
-            int code = conn.getResponseCode();
-            Log.d(TAG, "App launch [" + appId + "] response: " + code);
-            if (code >= 200 && code < 300) {
-                Log.d(TAG, "App launch SUCCESS: " + appId);
+                connectWithOkHttp(PORT_WS, false);
             } else {
-                Log.w(TAG, "App launch unexpected response code: " + code);
+                fallbackToLegacyWebSocket();
             }
-            conn.disconnect();
-        } catch (Exception e) {
-            Log.e(TAG, "REST app launch error [" + appId + "]", e);
+        }
+
+        @Override
+        public void onClosed(WebSocket ws, int code, String reason) {
+            connected.set(false);
+            if (listener != null) listener.onDisconnected(reason);
         }
     }
 
-    /** @deprecated Use RemoteService.sendAppLaunch() which dispatches via a managed executor. */
-    @Deprecated
-    public void sendAppLaunch(String appId) {
-        new Thread(() -> sendAppLaunchSync(appId)).start();
+    private void fallbackToLegacyWebSocket() {
+        Log.w(TAG, "Falling back to SamsungWebSocket");
+        activeMethod = ConnectionMethod.LEGACY_WS;
+        
+        legacyWebSocket = new SamsungWebSocket(ip, PORT_WS, new SamsungWebSocket.ConnectionListener() {
+            @Override
+            public void onConnected() {
+                connected.set(true);
+                if (listener != null) listener.onConnected();
+                fetchDeviceInfo();
+            }
+
+            @Override
+            public void onDisconnected() {
+                connected.set(false);
+                fallbackToRestApi();
+            }
+
+            @Override
+            public void onError(String error) {
+                Log.e(TAG, "Legacy WebSocket error: " + error);
+                fallbackToRestApi();
+            }
+
+            @Override
+            public void onPairingRequired(String token) {
+                Log.d(TAG, "Legacy WebSocket pairing token: " + token);
+                if (listener != null) listener.onTokenReceived(token);
+            }
+        });
+        
+        legacyWebSocket.connect();
     }
 
-    public void sendInputString(String text) {
-        if (!connected || webSocket == null) {
-            Log.w(TAG, "sendInputString: not connected");
-            return;
-        }
-        try {
-            JSONObject params = new JSONObject()
-                .put("Cmd",          text)
-                .put("TypeOfRemote", "SendInputString");
-            JSONObject message = new JSONObject()
-                .put("method", "ms.remote.control")
-                .put("params", params);
-            webSocket.send(message.toString());
-            Log.d(TAG, "Sent input string: " + text);
-        } catch (JSONException e) {
-            Log.e(TAG, "sendInputString error", e);
-        }
+    private void fallbackToRestApi() {
+        Log.w(TAG, "Falling back to REST API only");
+        activeMethod = ConnectionMethod.REST_API;
+        connected.set(true);
+        if (listener != null) listener.onConnected();
+        fetchDeviceInfo();
     }
-
-    /**
-     * Sends mouse movement to the TV.
-     * @param deltaX horizontal movement (positive = right)
-     * @param deltaY vertical movement (positive = down)
-     */
-    public void sendMouseMove(int deltaX, int deltaY) {
-        if (!connected || webSocket == null) {
-            Log.w(TAG, "sendMouseMove: not connected");
-            return;
-        }
-        try {
-            JSONObject params = new JSONObject()
-                .put("Cmd",          "Move")
-                .put("DataOfCmd",    "x:" + deltaX + " y:" + deltaY)
-                .put("Option",       "false")
-                .put("TypeOfRemote", "SendMouse");
-            JSONObject message = new JSONObject()
-                .put("method", "ms.remote.control")
-                .put("params", params);
-            webSocket.send(message.toString());
-            Log.d(TAG, "Sent mouse move: dx=" + deltaX + ", dy=" + deltaY);
-        } catch (JSONException e) {
-            Log.e(TAG, "sendMouseMove error", e);
-        }
-    }
-
-    /**
-     * Sends a mouse click to the TV.
-     * @param button "Left" for left click, "Right" for right click, "Center" for middle click
-     */
-    public void sendMouseClick(String button) {
-        if (!connected || webSocket == null) {
-            Log.w(TAG, "sendMouseClick: not connected");
-            return;
-        }
-        try {
-            JSONObject params = new JSONObject()
-                .put("Cmd",          "Click")
-                .put("DataOfCmd",    button)
-                .put("Option",       "false")
-                .put("TypeOfRemote", "SendMouse");
-            JSONObject message = new JSONObject()
-                .put("method", "ms.remote.control")
-                .put("params", params);
-            webSocket.send(message.toString());
-            Log.d(TAG, "Sent mouse click: " + button);
-        } catch (JSONException e) {
-            Log.e(TAG, "sendMouseClick error", e);
-        }
-    }
-
-    /**
-     * Sends mouse wheel scroll to the TV.
-     * @param deltaY scroll amount (positive = up, negative = down)
-     */
-    public void sendMouseWheel(int deltaY) {
-        if (!connected || webSocket == null) {
-            Log.w(TAG, "sendMouseWheel: not connected");
-            return;
-        }
-        try {
-            JSONObject params = new JSONObject()
-                .put("Cmd",          "Scroll")
-                .put("DataOfCmd",    "y:" + deltaY)
-                .put("Option",       "false")
-                .put("TypeOfRemote", "SendMouse");
-            JSONObject message = new JSONObject()
-                .put("method", "ms.remote.control")
-                .put("params", params);
-            webSocket.send(message.toString());
-            Log.d(TAG, "Sent mouse wheel: dy=" + deltaY);
-        } catch (JSONException e) {
-            Log.e(TAG, "sendMouseWheel error", e);
-        }
-    }
-
-    public void showKeyboard() { sendKey("KEY_ENTER"); }
 
     private void handleMessage(String text) {
         try {
@@ -295,13 +205,293 @@ public class SamsungRemote {
             String event = json.optString("event");
             if ("ms.channel.connect".equals(event)) {
                 JSONObject data = json.optJSONObject("data");
-                if (data != null && data.has("token") && listener != null) {
-                    listener.onTokenReceived(data.getString("token"));
+                if (data != null && data.has("token")) {
+                    currentToken = data.getString("token");
+                    Log.d(TAG, "Got token: " + currentToken);
+                    if (listener != null) listener.onTokenReceived(currentToken);
                 }
             }
         } catch (JSONException e) {
             Log.e(TAG, "handleMessage error", e);
         }
+    }
+
+    @Override
+    public void disconnect() {
+        connected.set(false);
+        if (okHttpWebSocket != null) {
+            okHttpWebSocket.close(1000, "User disconnected");
+            okHttpWebSocket = null;
+        }
+        if (legacyWebSocket != null) {
+            legacyWebSocket.disconnect();
+            legacyWebSocket = null;
+        }
+        if (okHttpClient != null) {
+            okHttpClient.dispatcher().executorService().shutdown();
+            okHttpClient = null;
+        }
+    }
+
+    @Override
+    public boolean isConnected() {
+        return connected.get();
+    }
+
+    @Override
+    public void sendKey(int keyCode, boolean longPress) {
+        sendKey(String.valueOf(keyCode), longPress);
+    }
+
+    @Override
+    public void sendKey(String keyCode) {
+        sendKey(keyCode, false);
+    }
+
+    private void sendKey(String keyCode, boolean longPress) {
+        if (!connected.get()) {
+            Log.w(TAG, "sendKey: not connected");
+            return;
+        }
+        
+        String mappedKey = keyCode;
+        if ("KEY_VOLUMEUP".equals(keyCode)) mappedKey = "KEY_VOLUP";
+        if ("KEY_VOLUMEDOWN".equals(keyCode)) mappedKey = "KEY_VOLDOWN";
+        
+        switch (activeMethod) {
+            case OKHTTP:
+                sendKeyViaOkHttp(mappedKey, longPress);
+                break;
+            case LEGACY_WS:
+                if (legacyWebSocket != null && legacyWebSocket.isConnected()) {
+                    legacyWebSocket.sendCommand(mappedKey);
+                }
+                break;
+            case REST_API:
+                Log.w(TAG, "REST API fallback - key " + mappedKey + " not sent");
+                break;
+        }
+    }
+
+    private void sendKeyViaOkHttp(String mappedKey, boolean longPress) {
+        if (okHttpWebSocket == null) return;
+        try {
+            String pressType = longPress ? "Click&Hold" : "Click";
+            JSONObject params = new JSONObject()
+                .put("Cmd", pressType)
+                .put("DataOfCmd", mappedKey)
+                .put("Option", "false")
+                .put("TypeOfRemote", "SendRemoteKey");
+            JSONObject message = new JSONObject()
+                .put("method", "ms.remote.control")
+                .put("params", params);
+            okHttpWebSocket.send(message.toString());
+            Log.d(TAG, "Sent key via OkHttp: " + mappedKey + (longPress ? " (long press)" : ""));
+        } catch (JSONException e) {
+            Log.e(TAG, "sendKeyViaOkHttp error", e);
+        }
+    }
+
+    @Override
+    public void sendText(String text) {
+        sendText(text, false);
+    }
+
+    @Override
+    public void sendText(String text, boolean replaceAll) {
+        if (!connected.get()) {
+            Log.w(TAG, "sendText: not connected");
+            return;
+        }
+        
+        switch (activeMethod) {
+            case OKHTTP:
+                sendTextViaOkHttp(text);
+                break;
+            case LEGACY_WS:
+                if (legacyWebSocket != null && legacyWebSocket.isConnected()) {
+                    sendKeyViaOkHttp("KEY_ENTER", false);
+                }
+                break;
+            case REST_API:
+                Log.w(TAG, "REST API fallback - text not sent");
+                break;
+        }
+    }
+
+    private void sendTextViaOkHttp(String text) {
+        if (okHttpWebSocket == null) return;
+        try {
+            JSONObject params = new JSONObject()
+                .put("Cmd", "Input")
+                .put("DataOfCmd", text)
+                .put("Option", "false")
+                .put("TypeOfRemote", "SendInputString");
+            JSONObject message = new JSONObject()
+                .put("method", "ms.remote.control")
+                .put("params", params);
+            okHttpWebSocket.send(message.toString());
+            Log.d(TAG, "Sent text via OkHttp: " + text);
+        } catch (JSONException e) {
+            Log.e(TAG, "sendTextViaOkHttp error", e);
+        }
+    }
+
+    @Override
+    public void sendMouseMove(int dx, int dy) {
+        if (!connected.get() || activeMethod != ConnectionMethod.OKHTTP || okHttpWebSocket == null) return;
+        try {
+            JSONObject params = new JSONObject()
+                .put("Cmd", "Move")
+                .put("DataOfCmd", "x:" + dx + ",y:" + dy)
+                .put("Option", "true")
+                .put("TypeOfRemote", "SendMouse");
+            JSONObject message = new JSONObject()
+                .put("method", "ms.remote.control")
+                .put("params", params);
+            okHttpWebSocket.send(message.toString());
+        } catch (JSONException e) {
+            Log.e(TAG, "sendMouseMove error", e);
+        }
+    }
+
+    @Override
+    public void sendMouseClick(String button) {
+        if (!connected.get() || activeMethod != ConnectionMethod.OKHTTP || okHttpWebSocket == null) return;
+        try {
+            JSONObject pressParams = new JSONObject()
+                .put("Cmd", "Press")
+                .put("DataOfCmd", button)
+                .put("Option", "false")
+                .put("TypeOfRemote", "SendMouse");
+            okHttpWebSocket.send(new JSONObject()
+                .put("method", "ms.remote.control")
+                .put("params", pressParams).toString());
+
+            JSONObject releaseParams = new JSONObject()
+                .put("Cmd", "Release")
+                .put("DataOfCmd", button)
+                .put("Option", "false")
+                .put("TypeOfRemote", "SendMouse");
+            okHttpWebSocket.send(new JSONObject()
+                .put("method", "ms.remote.control")
+                .put("params", releaseParams).toString());
+        } catch (JSONException e) {
+            Log.e(TAG, "sendMouseClick error", e);
+        }
+    }
+
+    @Override
+    public void sendMouseWheel(int deltaY) {
+        if (!connected.get() || activeMethod != ConnectionMethod.OKHTTP || okHttpWebSocket == null) return;
+        try {
+            JSONObject params = new JSONObject()
+                .put("Cmd", "Scroll")
+                .put("DataOfCmd", "y:" + deltaY)
+                .put("Option", "false")
+                .put("TypeOfRemote", "SendMouse");
+            JSONObject message = new JSONObject()
+                .put("method", "ms.remote.control")
+                .put("params", params);
+            okHttpWebSocket.send(message.toString());
+        } catch (JSONException e) {
+            Log.e(TAG, "sendMouseWheel error", e);
+        }
+    }
+
+    @Override
+    public void sendMouseActivate() {
+        sendMouseMove(0, 0);
+    }
+
+    @Override
+    public void sendAppLaunch(String appId) {
+        Log.d(TAG, "Launching app: " + appId);
+        new Thread(() -> {
+            try {
+                String urlStr = "http://" + ip + ":8001/api/v2/applications/" + appId;
+                URL url = new URL(urlStr);
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("POST");
+                conn.setConnectTimeout(3000);
+                conn.setReadTimeout(3000);
+                conn.connect();
+                Log.d(TAG, "App launch response: " + conn.getResponseCode());
+                conn.disconnect();
+            } catch (Exception e) {
+                Log.e(TAG, "App launch error", e);
+            }
+        }).start();
+    }
+
+    @Override
+    public void sendVolumeUp() {
+        sendKey("KEY_VOLUMEUP");
+    }
+
+    @Override
+    public void sendVolumeDown() {
+        sendKey("KEY_VOLUMEDOWN");
+    }
+
+    @Override
+    public void sendMute() {
+        sendKey("KEY_MUTE");
+    }
+
+    @Override
+    public void sendHome() {
+        sendKey("KEY_HOME");
+    }
+
+    @Override
+    public void sendBack() {
+        sendKey("KEY_RETURN");
+    }
+
+    @Override
+    public void sendPower() {
+        sendKey("KEY_POWER");
+    }
+
+    private void fetchDeviceInfo() {
+        if (deviceInfoFetched) return;
+        deviceInfoFetched = true;
+
+        new Thread(() -> {
+            try {
+                String urlStr = "http://" + ip + ":8001/api/v2/";
+                URL url = new URL(urlStr);
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("GET");
+                conn.setConnectTimeout(3000);
+                conn.setReadTimeout(3000);
+
+                if (conn.getResponseCode() == 200) {
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                    StringBuilder response = new StringBuilder();
+                    String line;
+                    while ((line = reader.readLine()) != null) response.append(line);
+                    reader.close();
+
+                    JSONObject json = new JSONObject(response.toString());
+                    JSONObject device = json.optJSONObject("device");
+                    if (device != null) {
+                        String modelName = device.optString("modelName", "Samsung TV");
+                        String wifiMac = device.optString("wifiMac", "");
+                        Log.d(TAG, "Device info: model=" + modelName + ", mac=" + wifiMac);
+                        if (listener != null) {
+                            listener.onDeviceInfo(modelName, wifiMac);
+                        }
+                    }
+                } else {
+                    Log.w(TAG, "Device info fetch failed, response code: " + conn.getResponseCode());
+                }
+                conn.disconnect();
+            } catch (Exception e) {
+                Log.e(TAG, "fetchDeviceInfo error", e);
+            }
+        }).start();
     }
 
     private SSLContext buildPermissiveSslContext() throws Exception {

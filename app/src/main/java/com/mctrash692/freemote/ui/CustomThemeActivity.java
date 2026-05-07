@@ -31,7 +31,11 @@ public class CustomThemeActivity extends BaseActivity {
         CustomThemeManager.KEY_BUTTON_BG,
         CustomThemeManager.KEY_PRIMARY,
         CustomThemeManager.KEY_TEXT_PRIMARY,
-        CustomThemeManager.KEY_TEXT_SECONDARY
+        CustomThemeManager.KEY_TEXT_SECONDARY,
+        CustomThemeManager.KEY_NAV_ZONE,
+        CustomThemeManager.KEY_DIVIDER,
+        CustomThemeManager.KEY_TOUCHPAD_BG,
+        CustomThemeManager.KEY_TOUCHPAD_TEXT
     };
     
     private final String[] COMPONENT_NAMES = {
@@ -39,7 +43,11 @@ public class CustomThemeActivity extends BaseActivity {
         "Button Background",
         "Accent Color",
         "Text Primary Color",
-        "Text Secondary Color"
+        "Text Secondary Color",
+        "Navigation Zone",
+        "Divider Color",
+        "Touchpad Background",
+        "Touchpad Text"
     };
     
     @Override
@@ -154,12 +162,12 @@ public class CustomThemeActivity extends BaseActivity {
         final int[] colors = {
             0xFF000000, 0xFFFFFFFF, 0xFF00FF00, 0xFF0000FF, 0xFFFF0000,
             0xFFFFFF00, 0xFFFF00FF, 0xFF00FFFF, 0xFF1A0D33, 0xFF0D1B2A,
-            0xCCFFFFFF, 0x80FFFFFF
+            0xCCFFFFFF, 0x80FFFFFF, 0xFF4CAF50, 0xFF2196F3, 0xFFFF5722
         };
         final String[] colorNames = {
             "Black", "White", "Green", "Blue", "Red",
             "Yellow", "Pink", "Cyan", "Deep Purple", "Dark Blue",
-            "Light White", "Semi-White"
+            "Light White", "Semi-White", "Material Green", "Material Blue", "Orange"
         };
         
         new AlertDialog.Builder(this)
@@ -201,12 +209,16 @@ public class CustomThemeActivity extends BaseActivity {
     }
     
     private void saveTheme() {
+        // Save permanent theme
         CustomThemeManager.savePermanentTheme(this);
-        Toast.makeText(this, "Custom theme saved! Restarting...", Toast.LENGTH_LONG).show();
         
+        // IMPORTANT: Save the theme index to theme_prefs
         SharedPreferences themePrefs = getSharedPreferences("theme_prefs", MODE_PRIVATE);
         themePrefs.edit().putInt("current_theme", ThemeManager.THEME_CUSTOM).apply();
         
+        Toast.makeText(this, "Custom theme saved! Restarting...", Toast.LENGTH_LONG).show();
+        
+        // Restart the app to apply theme
         Intent intent = new Intent(this, DeviceDiscoveryActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
