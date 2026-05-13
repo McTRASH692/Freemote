@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ============================================================================
+     FILE: ic_source.xml
+     WHAT:  Input / source selector icon — a rectangle (TV screen) with an
+            arrow pointing into it from the left, and a cable/plug shape.
+            Used to switch between HDMI / input sources.
+     ============================================================================ -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- TV / monitor outline rectangle -->
+    <path android:fillColor="@android:color/transparent" android:strokeColor="?attr/colorButtonIcon" android:strokeWidth="2" android:pathData="M7 6h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z"/>
+    <!-- Cable / wire coming from the left into the TV -->
+    <path android:fillColor="@android:color/transparent" android:strokeColor="?attr/colorButtonIcon" android:strokeWidth="2" android:pathData="M0 12l16 0"/>
+    <!-- Arrowhead top half of the plug arrow -->
+    <path android:fillColor="@android:color/transparent" android:strokeColor="?attr/colorButtonIcon" android:strokeWidth="2" android:pathData="M16 12l-4-3"/>
+    <!-- Arrowhead bottom half of the plug arrow -->
+    <path android:fillColor="@android:color/transparent" android:strokeColor="?attr/colorButtonIcon" android:strokeWidth="2" android:pathData="M16 12l-4 3"/>
+</vector>

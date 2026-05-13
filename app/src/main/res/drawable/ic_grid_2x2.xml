@@ -1,9 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ============================================================================
+     FILE: ic_grid_2x2.xml
+     WHAT:  Apps grid icon — four equal squares arranged in a 2-by-2 grid.
+            Opens the TV's app launcher / home screen grid view.
+     ============================================================================ -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp"
     android:height="24dp"
     android:viewportWidth="24"
     android:viewportHeight="24">
     <path
-        android:fillColor="?attr/colorTextPrimary"
+        android:fillColor="?attr/colorButtonIcon"
         android:pathData="M3,3h8v8H3V3z M13,3h8v8h-8V3z M3,13h8v8H3v-8z M13,13h8v8h-8v-8z"/>
 </vector>

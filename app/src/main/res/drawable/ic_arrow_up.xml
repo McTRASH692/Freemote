@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- ============================================================================
+     FILE: ic_arrow_up.xml
+     WHAT:  Up arrow — a line pointing upward with an arrowhead at the top.
+            Used for the D-pad up direction, scrolling up, or volume up.
+     ============================================================================ -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp"
     android:height="24dp"
     android:viewportWidth="24"
     android:viewportHeight="24">
-    <path android:fillColor="@android:color/transparent" android:strokeColor="?attr/colorTextPrimary" android:strokeWidth="2" android:pathData="m5 12 7-7 7 7"/>
-    <path android:fillColor="@android:color/transparent" android:strokeColor="?attr/colorTextPrimary" android:strokeWidth="2" android:pathData="M12 19V5"/>
+    <path android:fillColor="@android:color/transparent" android:strokeColor="?attr/colorButtonIcon" android:strokeWidth="2" android:pathData="m5 12 7-7 7 7"/>
+    <path android:fillColor="@android:color/transparent" android:strokeColor="?attr/colorButtonIcon" android:strokeWidth="2" android:pathData="M12 19V5"/>
 </vector>

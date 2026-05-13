@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ============================================================================
+     FILE: ic_mouse.xml
+     WHAT:  Mouse cursor / pointer icon — an arrow shape pointing up-left,
+            like a standard desktop mouse cursor.
+     ============================================================================ -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Arrow outline (pointing up-left, wide at bottom-right) -->
+    <path android:fillColor="@android:color/transparent" android:strokeColor="?attr/colorButtonIcon" android:strokeWidth="2" android:pathData="M5 10 C5 2 19 2 19 10 L19 16 C19 20 14 21 12 21 C10 21 5 20 5 16 Z"/>
+    <!-- Horizontal divider line across the arrow body -->
+    <path android:fillColor="@android:color/transparent" android:strokeColor="?attr/colorButtonIcon" android:strokeWidth="2" android:pathData="M5 10 L19 10"/>
+    <!-- Vertical divider line down the arrow body -->
+    <path android:fillColor="@android:color/transparent" android:strokeColor="?attr/colorButtonIcon" android:strokeWidth="2" android:pathData="M12 10 L12 16"/>
+</vector>

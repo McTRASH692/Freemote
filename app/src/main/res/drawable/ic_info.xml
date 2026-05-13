@@ -1,10 +1,20 @@
-<?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp"
     android:height="24dp"
-    android:viewportWidth="24"
-    android:viewportHeight="24">
-    <path android:fillColor="@android:color/transparent" android:strokeColor="?attr/colorTextPrimary" android:strokeWidth="2" android:pathData="M12 16v-4"/>
-    <path android:fillColor="@android:color/transparent" android:strokeColor="?attr/colorTextPrimary" android:strokeWidth="2" android:pathData="M12 8h.01"/>
-    <path android:fillColor="@android:color/transparent" android:strokeColor="?attr/colorTextPrimary" android:strokeWidth="2" android:pathData="M 12,2.0 A 10,10 0 1 0 12,22.0 A 10,10 0 1 0 12,2.0 Z"/>
+    android:viewportWidth="22000"
+    android:viewportHeight="22000">
+    <group
+        android:scaleX="1"
+        android:scaleY="-1"
+        android:translateX="1235"
+        android:translateY="22000">
+        <path
+            android:fillColor="?attr/colorButtonIcon"
+            android:strokeWidth="1"
+            android:pathData="M10180 18173c-1164-66-2112-596-2291-1281-123-467 138-946 700-1286 733-445 1852-580 2827-341 990 243 1619 819 1581 1449-38 632-732 1183-1747 1386-328 65-727 93-1070 73z"/>
+        <path
+            android:fillColor="?attr/colorButtonIcon"
+            android:strokeWidth="1"
+            android:pathData="M6919 14062c-24-26-110-129-191-229-1689-2084-4013-4226-6094-5615l-229-154-3-198c-2-175 0-201 14-217 16-18 57-19 1056-19 842 0 1038-2 1038-13 0-7-51-130-113-272-871-1995-1294-3491-1264-4475 14-453 102-775 306-1118 382-645 961-950 2001-1056 396-40 1023-46 1390-11 599 55 1280 190 1990 395 414 119 1115 361 1152 398 10 10 222 633 481 1412 435 1307 463 1396 448 1413-16 17-24 14-162-51-441-210-1178-469-1504-528-141-26-483-31-620-9-408 64-679 263-807 591-137 353-35 842 326 1563 180 359 356 666 764 1331 96 157 263 431 370 610 119 198 359 570 614 950 389 580 530 790 971 1440 686 1012 897 1334 2201 3364 313 486 326 509 310 527-17 19-75 19-2209 19l-2192 0-44-48z"/>
+    </group>
 </vector>

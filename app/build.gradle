@@ -1,9 +1,24 @@
+// ============================================================================
+// FILE: app/build.gradle (app module)
+// WHAT:  Build configuration for the "app" module — the actual Android
+//        application. This file defines:
+//        - The Android SDK versions (minimum 26, target 34)
+//        - The app's unique package name (com.mctrash692.freemote.oc)
+//        - Version number and name
+//        - Signing config for release builds (reads from keystore.properties)
+//        - Build types: "release" (minified) and "debug" (.debug suffix)
+//        - Custom APK naming: debug APKs get a timestamp, release APKs get version
+//        - Java 17 compatibility
+//        - ViewBinding enabled
+//        - Protobuf compilation settings (for TV communication protocol)
+//        - All library dependencies (AndroidX, OkHttp, WebSockets, etc.)
+// ============================================================================
 plugins {
     id 'com.android.application'
     id 'com.google.protobuf'
 }
 
-// Load keystore properties
+// Load keystore properties for signing release builds
 def keystorePropertiesFile = rootProject.file("keystore.properties")
 def keystoreProperties = new Properties()
 if (keystorePropertiesFile.exists()) {
@@ -15,7 +30,7 @@ android {
     compileSdk 34
 
     defaultConfig {
-        applicationId "com.mctrash692.freemote"
+        applicationId "com.mctrash692.freemote.oc"
         minSdk 26
         targetSdk 34
         versionCode 1
@@ -46,13 +61,17 @@ android {
     }
 
 
-
    // Custom APK naming with automatic versioning
     applicationVariants.all { variant ->
         variant.outputs.all {
             def versionName = variant.versionName
- //         def versionCode = variant.versionCode
-            outputFileName = "Freemote-v${versionName}.apk"
+            def buildType = variant.buildType.name
+            if (buildType == "debug") {
+               def timestamp = new Date().format('yyyyMMdd_HHmmss')
+               outputFileName = "Freemote-OC-debug-${timestamp}.apk"
+             } else {
+                outputFileName = "Freemote-OC-v${versionName}.apk"
+            }
         }
     }
 

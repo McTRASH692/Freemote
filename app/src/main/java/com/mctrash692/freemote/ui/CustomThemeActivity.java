@@ -1,5 +1,16 @@
 package com.mctrash692.freemote.ui;
 
+// ============================================================================
+// FILE: CustomThemeActivity.java
+// WHAT:  The Custom Theme Editor screen where you can create your own
+//        color scheme for the app. You can pick colors for the background,
+//        buttons, accent elements, text, navigation area, dividers, and
+//        the touchpad area. A live preview box shows what your theme will
+//        look like as you adjust each color. You can save the theme (it
+//        restarts the app to apply it), cancel without saving, or reset
+//        all colors back to their defaults.
+// ============================================================================
+
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -12,20 +23,32 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.mctrash692.freemote.R;
+import com.mctrash692.freemote.util.ColorUtils;
 import com.mctrash692.freemote.util.CustomThemeManager;
 import com.mctrash692.freemote.util.ThemeManager;
 
 import java.util.HashMap;
 import java.util.Map;
 
+// ==========================================================================
+// SECTION: CUSTOM THEME EDITOR
+// WHAT:  Lets you create your own color scheme for the app. You can
+//        pick individual colors for the background, buttons, text,
+//        navigation area, dividers, and touchpad. A preview box shows
+//        what the result will look like as you make changes.
+// ==========================================================================
+
 public class CustomThemeActivity extends BaseActivity {
     
+    // Links each theme component name to its "Pick" button for quick updates
     private Map<String, Button> colorButtons = new HashMap<>();
+    // Preview box showing a sample of the current theme
     private LinearLayout previewBox;
     private Button sampleButton;
     private TextView sampleText;
     private TextView sampleSecondary;
     
+    // Internal keys used to save/load each color setting
     private final String[] COMPONENTS = {
         CustomThemeManager.KEY_BACKGROUND,
         CustomThemeManager.KEY_BUTTON_BG,
@@ -38,6 +61,7 @@ public class CustomThemeActivity extends BaseActivity {
         CustomThemeManager.KEY_TOUCHPAD_TEXT
     };
     
+    // Human-readable names shown on screen for each color setting
     private final String[] COMPONENT_NAMES = {
         "Background Color",
         "Button Background",
@@ -50,15 +74,25 @@ public class CustomThemeActivity extends BaseActivity {
         "Touchpad Text"
     };
     
+    // ==========================================================================
+    // METHOD: onCreate
+    // WHAT:  Runs when the Custom Theme Editor opens. Builds the entire
+    //        screen from scratch — a title, a preview box showing the
+    //        current colors, a list of color picker buttons for each
+    //        theme component, and Save/Cancel/Reset action buttons.
+    // ==========================================================================
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
+        // Create a scrollable layout container
         ScrollView scrollView = new ScrollView(this);
         LinearLayout mainLayout = new LinearLayout(this);
         mainLayout.setOrientation(LinearLayout.VERTICAL);
         mainLayout.setPadding(32, 32, 32, 32);
         
+        // Screen title
         TextView title = new TextView(this);
         title.setText("Custom Theme Editor");
         title.setTextSize(24);
@@ -66,7 +100,7 @@ public class CustomThemeActivity extends BaseActivity {
         title.setPadding(0, 0, 0, 32);
         mainLayout.addView(title);
         
-        // Preview box
+        // Preview box — shows a live example of the current theme
         previewBox = new LinearLayout(this);
         previewBox.setOrientation(LinearLayout.VERTICAL);
         previewBox.setPadding(16, 16, 16, 16);
@@ -92,7 +126,7 @@ public class CustomThemeActivity extends BaseActivity {
         
         mainLayout.addView(previewBox);
         
-        // Color picker buttons
+        // Color picker buttons — one row for each theme component
         for (int i = 0; i < COMPONENTS.length; i++) {
             final String component = COMPONENTS[i];
             final String displayName = COMPONENT_NAMES[i];
@@ -110,9 +144,9 @@ public class CustomThemeActivity extends BaseActivity {
             int currentColor = CustomThemeManager.getTempColor(this, component);
             colorBtn.setBackgroundColor(currentColor);
             colorBtn.setText("Pick");
-            colorBtn.setTextColor(getContrastColor(currentColor));
+            colorBtn.setTextColor(ColorUtils.getContrastColor(currentColor));
             colorBtn.setOnClickListener(v -> showColorPicker(component, colorBtn));
-            
+
             colorButtons.put(component, colorBtn);
             
             row.addView(label);
@@ -120,7 +154,7 @@ public class CustomThemeActivity extends BaseActivity {
             mainLayout.addView(row);
         }
         
-        // Action buttons
+        // Action buttons — Save, Cancel, Reset
         LinearLayout buttonRow = new LinearLayout(this);
         buttonRow.setOrientation(LinearLayout.HORIZONTAL);
         buttonRow.setPadding(0, 32, 0, 0);
@@ -158,7 +192,17 @@ public class CustomThemeActivity extends BaseActivity {
         setContentView(scrollView);
     }
     
+    // ==========================================================================
+    // METHOD: showColorPicker
+    // WHAT:  Opens a dialog with a list of preset colors to choose from.
+    //        When you tap a color, it saves that choice temporarily and
+    //        updates the preview to show the new look.
+    // INPUT: component = which theme element this color is for
+    //        pickerBtn = the "Pick" button whose color changes to match
+    // ==========================================================================
+
     private void showColorPicker(String component, Button pickerBtn) {
+        // List of preset colors and their display names
         final int[] colors = {
             0xFF000000, 0xFFFFFFFF, 0xFF00FF00, 0xFF0000FF, 0xFFFF0000,
             0xFFFFFF00, 0xFFFF00FF, 0xFF00FFFF, 0xFF1A0D33, 0xFF0D1B2A,
@@ -176,12 +220,18 @@ public class CustomThemeActivity extends BaseActivity {
                 int selectedColor = colors[which];
                 CustomThemeManager.saveTempColor(this, component, selectedColor);
                 pickerBtn.setBackgroundColor(selectedColor);
-                pickerBtn.setTextColor(getContrastColor(selectedColor));
+                pickerBtn.setTextColor(ColorUtils.getContrastColor(selectedColor));
                 updatePreview();
             })
             .show();
     }
     
+    // ==========================================================================
+    // METHOD: updatePreview
+    // WHAT:  Refreshes the preview box to show the current temporary theme
+    //        colors. Called every time a color is picked.
+    // ==========================================================================
+
     private void updatePreview() {
         int bgColor = CustomThemeManager.getTempColor(this, CustomThemeManager.KEY_BACKGROUND);
         int btnBg = CustomThemeManager.getTempColor(this, CustomThemeManager.KEY_BUTTON_BG);
@@ -195,6 +245,12 @@ public class CustomThemeActivity extends BaseActivity {
         sampleSecondary.setTextColor(textSecondary);
     }
     
+    // ==========================================================================
+    // METHOD: resetToDefaults
+    // WHAT:  Resets every theme color back to the app's default values.
+    //        Updates all the "Pick" buttons and the preview to match.
+    // ==========================================================================
+
     private void resetToDefaults() {
         for (Map.Entry<String, Button> entry : colorButtons.entrySet()) {
             String component = entry.getKey();
@@ -202,12 +258,18 @@ public class CustomThemeActivity extends BaseActivity {
             CustomThemeManager.saveTempColor(this, component, defaultColor);
             Button btn = entry.getValue();
             btn.setBackgroundColor(defaultColor);
-            btn.setTextColor(getContrastColor(defaultColor));
+            btn.setTextColor(ColorUtils.getContrastColor(defaultColor));
         }
         updatePreview();
-        Toast.makeText(this, "Reset to default colors", Toast.LENGTH_SHORT).show();
     }
     
+    // ==========================================================================
+    // METHOD: saveTheme
+    // WHAT:  Saves the current temporary theme as the permanent theme,
+    //        marks it as active, then restarts the app so the new colors
+    //        take effect everywhere.
+    // ==========================================================================
+
     private void saveTheme() {
         // Save permanent theme
         CustomThemeManager.savePermanentTheme(this);
@@ -216,8 +278,6 @@ public class CustomThemeActivity extends BaseActivity {
         SharedPreferences themePrefs = getSharedPreferences("theme_prefs", MODE_PRIVATE);
         themePrefs.edit().putInt("current_theme", ThemeManager.THEME_CUSTOM).apply();
         
-        Toast.makeText(this, "Custom theme saved! Restarting...", Toast.LENGTH_LONG).show();
-        
         // Restart the app to apply theme
         Intent intent = new Intent(this, DeviceDiscoveryActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -225,8 +285,4 @@ public class CustomThemeActivity extends BaseActivity {
         finish();
     }
     
-    private int getContrastColor(int backgroundColor) {
-        int brightness = (Color.red(backgroundColor) + Color.green(backgroundColor) + Color.blue(backgroundColor)) / 3;
-        return brightness > 128 ? 0xFF000000 : 0xFFFFFFFF;
-    }
 }

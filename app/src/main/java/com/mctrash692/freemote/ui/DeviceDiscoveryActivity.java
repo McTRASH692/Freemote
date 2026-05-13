@@ -1,5 +1,16 @@
 package com.mctrash692.freemote.ui;
 
+// ============================================================================
+// FILE: DeviceDiscoveryActivity.java
+// WHAT:  The Discover screen that automatically finds TVs on your home
+//        network. It searches for devices using three methods at once:
+//        NSD/mDNS (like ChromeCast), SSDP/UPnP (like media servers), and
+//        direct network port scanning. Found TVs appear in a list and you
+//        can tap one to connect. Already-paired devices show at the top
+//        for quick reconnection. You can also type in a TV's IP address
+//        manually if the automatic search doesn't find it.
+// ============================================================================
+
 import android.Manifest;
 import android.app.AlertDialog;
 import android.content.Intent;
@@ -11,6 +22,7 @@ import android.net.Network;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,21 +58,43 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
+// ==========================================================================
+// SECTION: DEVICE DISCOVERY SCREEN
+// WHAT:  Automatically finds TVs on your home network. It uses three
+//        different search methods at once to find as many devices as
+//        possible. Already-paired devices are shown at the top for quick
+//        reconnection. You can also manually type a TV's IP address.
+// ==========================================================================
+
 public class DeviceDiscoveryActivity extends BaseActivity implements PairedDevicesDialog.OnDeviceSelectedListener {
 
+    // Tag used for debug logging
+    private static final String TAG = "DeviceDiscovery";
+    // Code to identify permission request results
     private static final int PERMISSION_REQUEST_CODE = 100;
 
     private ActivityDeviceDiscoveryBinding binding;
+    // Network discovery helpers
     private NsdHelper nsdHelper;
     private SsdpDiscovery ssdpDiscovery;
     private NetworkScanner networkScanner;
+    // Adapters for the two lists on screen
     private DeviceAdapter discoveredAdapter;
     private PairedDeviceAdapter pairedAdapter;
+    // Store discovered and paired devices
     private final List<TvDevice> discoveredDevices = new ArrayList<>();
-    private List<PairedDevice> pairedDevices = new ArrayList<>();
+    private final List<PairedDevice> pairedDevices = new ArrayList<>();
+    // Ensures we don't show duplicate devices (keyed by IP address)
     private final Map<String, TvDevice> uniqueDevices = new HashMap<>();
     private PairedDevicesManager pairedDevicesManager;
     private Button btnShowAllPaired;
+
+    // ==========================================================================
+    // SECTION: SCREEN SETUP
+    // WHAT:  Runs when the discovery screen opens. Sets up the two lists
+    //        (discovered and paired), loads paired devices from storage,
+    //        checks for needed permissions, and starts finding TVs.
+    // ==========================================================================
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,6 +105,7 @@ public class DeviceDiscoveryActivity extends BaseActivity implements PairedDevic
         pairedDevicesManager = new PairedDevicesManager(this);
         btnShowAllPaired = findViewById(R.id.btnShowAllPaired);
 
+        // Create the list adapters — discovered TVs and paired devices
         discoveredAdapter = new DeviceAdapter(discoveredDevices, this::onDeviceSelected);
         pairedAdapter = new PairedDeviceAdapter(pairedDevices, this::onPairedDeviceSelected, this::onPairedDeviceLongPress);
 
@@ -94,10 +129,18 @@ public class DeviceDiscoveryActivity extends BaseActivity implements PairedDevic
         });
     }
 
+    // ==========================================================================
+    // METHOD: loadPairedDevices
+    // WHAT:  Reads all paired devices from storage and shows them in the
+    //        "paired" list. If there are more than 3, it only shows the
+    //        first 3 and adds a "Show All" button.
+    // ==========================================================================
+
     private void loadPairedDevices() {
         pairedDevices.clear();
         pairedDevices.addAll(pairedDevicesManager.getAllDevices());
         
+        // If more than 3 paired devices, show only first 3 with a "Show All" button
         if (pairedDevices.size() > 3) {
             btnShowAllPaired.setVisibility(View.VISIBLE);
             btnShowAllPaired.setText("Show All (" + pairedDevices.size() + ")");
@@ -110,24 +153,57 @@ public class DeviceDiscoveryActivity extends BaseActivity implements PairedDevic
         pairedAdapter.notifyDataSetChanged();
     }
 
+    // ==========================================================================
+    // METHOD: refreshPairedList
+    // WHAT:  Reloads the paired devices list from storage and updates
+    //        the display. Called after adding or deleting a device.
+    // ==========================================================================
+
     private void refreshPairedList() {
         loadPairedDevices();
     }
 
+    // ==========================================================================
+    // METHOD: showAllPairedDevices
+    // WHAT:  Opens a pop-up dialog showing ALL paired devices (not just
+    //        the first 3 that are shown on the main screen).
+    // ==========================================================================
+
     private void showAllPairedDevices() {
-        PairedDevicesDialog dialog = PairedDevicesDialog.newInstance(null);
+        PairedDevicesDialog dialog = PairedDevicesDialog.newInstance();
         dialog.show(getSupportFragmentManager(), "paired_devices");
     }
+
+    // ==========================================================================
+    // METHOD: onDeviceSelected
+    // WHAT:  Called when you tap a discovered TV in the list. Connects to
+    //        the TV by opening the remote control screen.
+    // INPUT: device = the TV you tapped on
+    // ==========================================================================
 
     @Override
     public void onDeviceSelected(TvDevice device) {
         onDeviceSelectedInternal(device);
     }
 
+    // ==========================================================================
+    // METHOD: onDeviceRemoved
+    // WHAT:  Called when a device is removed from the paired list via the
+    //        "Show All" dialog. Refreshes the list on this screen.
+    // ==========================================================================
+
     @Override
     public void onDeviceRemoved() {
         refreshPairedList();
     }
+
+    // ==========================================================================
+    // METHOD: onPairedDeviceSelected
+    // WHAT:  Runs when you tap a device in the "paired" section. Opens the
+    //        remote control screen for that TV and updates its "last used"
+    //        timestamp.
+    // INPUT: device = the TV you tapped
+    // ==========================================================================
 
     private void onPairedDeviceSelected(PairedDevice device) {
         device.updateLastUsed();
@@ -143,6 +219,13 @@ public class DeviceDiscoveryActivity extends BaseActivity implements PairedDevic
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
     }
+
+    // ==========================================================================
+    // METHOD: onPairedDeviceLongPress
+    // WHAT:  Runs when you long-press a device in the paired list. Shows
+    //        a menu with options to Edit the device or Forget (delete) it.
+    // INPUT: device = the TV you long-pressed
+    // ==========================================================================
 
     private void onPairedDeviceLongPress(PairedDevice device) {
         String[] options = {"Edit Device", "Forget Device"};
@@ -160,7 +243,6 @@ public class DeviceDiscoveryActivity extends BaseActivity implements PairedDevic
                                 .setPositiveButton("Forget", (d, w) -> {
                                     pairedDevicesManager.removeDevice(device.getDeviceId());
                                     refreshPairedList();
-                                    Toast.makeText(this, "Device removed", Toast.LENGTH_SHORT).show();
                                 })
                                 .setNegativeButton("Cancel", null)
                                 .show();
@@ -169,9 +251,19 @@ public class DeviceDiscoveryActivity extends BaseActivity implements PairedDevic
                 .show();
     }
 
+    // ==========================================================================
+    // METHOD: checkAndRequestPermissions
+    // WHAT:  Checks whether the app has all the permissions it needs to
+    //        discover devices on the network (location, WiFi, Bluetooth,
+    //        storage, notifications). If any are missing, it asks you to
+    //        grant them. Once all permissions are granted, it starts
+    //        searching for TVs.
+    // ==========================================================================
+
     private void checkAndRequestPermissions() {
         List<String> permissionsNeeded = new ArrayList<>();
 
+        // Storage permissions (different API levels use different permission names)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED) {
                 permissionsNeeded.add(Manifest.permission.READ_MEDIA_IMAGES);
@@ -191,6 +283,7 @@ public class DeviceDiscoveryActivity extends BaseActivity implements PairedDevic
             }
         }
 
+        // Location permissions (needed for WiFi scanning to find nearby devices)
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             permissionsNeeded.add(Manifest.permission.ACCESS_FINE_LOCATION);
         }
@@ -198,10 +291,12 @@ public class DeviceDiscoveryActivity extends BaseActivity implements PairedDevic
             permissionsNeeded.add(Manifest.permission.ACCESS_COARSE_LOCATION);
         }
 
+        // Microphone permission (for voice commands)
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
             permissionsNeeded.add(Manifest.permission.RECORD_AUDIO);
         }
 
+        // Bluetooth permissions (different for Android 12+)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
                 permissionsNeeded.add(Manifest.permission.BLUETOOTH_SCAN);
@@ -221,18 +316,28 @@ public class DeviceDiscoveryActivity extends BaseActivity implements PairedDevic
             }
         }
 
+        // Notification permission (Android 13+)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
                 permissionsNeeded.add(Manifest.permission.POST_NOTIFICATIONS);
             }
         }
 
+        // If any permissions are missing, ask the user; otherwise start discovery
         if (!permissionsNeeded.isEmpty()) {
             ActivityCompat.requestPermissions(this, permissionsNeeded.toArray(new String[0]), PERMISSION_REQUEST_CODE);
         } else {
             startDiscovery();
         }
     }
+
+    // ==========================================================================
+    // METHOD: onRequestPermissionsResult
+    // WHAT:  Runs after the user responds to the permission request. If
+    //        some permissions were denied, it shows a warning. Then it
+    //        starts searching for TVs regardless (some features may be
+    //        limited).
+    // ==========================================================================
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -245,16 +350,23 @@ public class DeviceDiscoveryActivity extends BaseActivity implements PairedDevic
                     break;
                 }
             }
-            if (allGranted) {
-                Toast.makeText(this, "Permissions granted", Toast.LENGTH_SHORT).show();
-            } else {
+            if (!allGranted) {
                 Toast.makeText(this, "Some permissions denied. App may have limited functionality.", Toast.LENGTH_LONG).show();
             }
             startDiscovery();
         }
     }
 
+    // ==========================================================================
+    // METHOD: startDiscovery
+    // WHAT:  Starts searching for TVs on your network using three methods
+    //        at the same time: NSD/mDNS (like Chromecast), SSDP/UPnP (like
+    //        media servers), and direct IP port scanning. When a device is
+    //        found, it's added to the list on screen.
+    // ==========================================================================
+
     private void startDiscovery() {
+        // Callback that runs each time a new device is discovered
         Consumer<TvDevice> deviceCallback = device -> runOnUiThread(() -> {
             String ipKey = device.getIpAddress();
             if (!uniqueDevices.containsKey(ipKey)) {
@@ -265,21 +377,34 @@ public class DeviceDiscoveryActivity extends BaseActivity implements PairedDevic
             }
         });
 
+        // Method 1: NSD/mDNS discovery (finds devices like Chromecast)
         nsdHelper = new NsdHelper(this, deviceCallback);
         nsdHelper.startDiscovery();
 
+        // Method 2: SSDP/UPnP discovery (finds media servers and smart TVs)
         ssdpDiscovery = new SsdpDiscovery(deviceCallback);
         ssdpDiscovery.start();
 
+        // Method 3: Direct port scanning of the local subnet
         String subnet = getLocalSubnet();
         if (subnet != null) {
             networkScanner = new NetworkScanner(deviceCallback);
+            // Wait 5 seconds before starting the scan (to let other methods find devices first)
             binding.getRoot().postDelayed(() -> {
                 binding.tvStatus.setText("Scanning network...");
                 networkScanner.scanNetwork(subnet);
             }, 5000);
         }
     }
+
+    // ==========================================================================
+    // METHOD: getLocalSubnet
+    // WHAT:  Figures out your phone's current IP address on the WiFi
+    //        network and returns the first three parts (the subnet).
+    //        For example, if your phone's IP is 192.168.0.50, this
+    //        returns "192.168.0." so the scanner can check all addresses
+    //        in that range.
+    // ==========================================================================
 
     private String getLocalSubnet() {
         try {
@@ -304,10 +429,16 @@ public class DeviceDiscoveryActivity extends BaseActivity implements PairedDevic
                 return String.format("%d.%d.%d.", (ip & 0xff), (ip >> 8 & 0xff), (ip >> 16 & 0xff));
             }
         } catch (Exception e) {
-            // Fall through
+            Log.w(TAG, "getLocalSubnet failed", e);
         }
         return null;
     }
+
+    // ==========================================================================
+    // METHOD: onDestroy
+    // WHAT:  Runs when the screen closes. Stops all discovery processes
+    //        so they don't keep using the network in the background.
+    // ==========================================================================
 
     @Override
     protected void onDestroy() {
@@ -317,8 +448,17 @@ public class DeviceDiscoveryActivity extends BaseActivity implements PairedDevic
         if (networkScanner != null) networkScanner.stop();
     }
 
+    // ==========================================================================
+    // METHOD: onDeviceSelectedInternal
+    // WHAT:  Runs when you tap a discovered TV. Saves it to your paired
+    //        devices list (if it's new) or updates the "last used" time
+    //        (if it already exists). Then opens the remote control screen.
+    // INPUT: device = the TV you selected
+    // ==========================================================================
+
     private void onDeviceSelectedInternal(TvDevice device) {
         try {
+            // Save as new paired device or update existing one
             if (!pairedDevicesManager.isDeviceSaved(device.getIpAddress())) {
                 PairedDevice pairedDevice = new PairedDevice(device);
                 pairedDevicesManager.saveDevice(pairedDevice);
@@ -331,6 +471,7 @@ public class DeviceDiscoveryActivity extends BaseActivity implements PairedDevic
                 }
             }
             
+            // Open the remote control screen for this TV
             Intent intent = new Intent(this, RemoteActivity.class);
             intent.putExtra(RemoteActivity.EXTRA_IP, device.getIpAddress());
             intent.putExtra(RemoteActivity.EXTRA_PORT, device.getPort());
@@ -342,6 +483,13 @@ public class DeviceDiscoveryActivity extends BaseActivity implements PairedDevic
             Toast.makeText(this, "Error opening remote: " + e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
+
+    // ==========================================================================
+    // METHOD: showManualEntryDialog
+    // WHAT:  Shows a dialog where you can type a TV's IP address, port
+    //        number, and a name to connect to it manually (in case the
+    //        automatic discovery doesn't find it).
+    // ==========================================================================
 
     private void showManualEntryDialog() {
         LinearLayout layout = new LinearLayout(this);
@@ -399,6 +547,13 @@ public class DeviceDiscoveryActivity extends BaseActivity implements PairedDevic
         dialog.show();
     }
 
+    // ==========================================================================
+    // SECTION: DISCOVERED DEVICES ADAPTER
+    // WHAT:  Converts discovered TVs into rows in the scrollable list.
+    //        Each row shows the device name, type, and IP address.
+    //        Tapping a row connects to that TV.
+    // ==========================================================================
+
     static class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder> {
         interface OnClick { void onClick(TvDevice device); }
         private final List<TvDevice> items;
@@ -444,6 +599,14 @@ public class DeviceDiscoveryActivity extends BaseActivity implements PairedDevic
         }
     }
 
+    // ==========================================================================
+    // SECTION: PAIRED DEVICES ADAPTER
+    // WHAT:  Converts already-paired devices into rows in the scrollable
+    //        list. Each row shows the device name, type, IP address, an
+    //        icon, and a delete button. Tapping a row opens the remote
+    //        control. Long-pressing shows edit/delete options.
+    // ==========================================================================
+
     class PairedDeviceAdapter extends RecyclerView.Adapter<PairedDeviceAdapter.ViewHolder> {
         interface OnClick { void onClick(PairedDevice device); }
         interface OnLongPress { void onLongPress(PairedDevice device); }
@@ -480,7 +643,6 @@ public class DeviceDiscoveryActivity extends BaseActivity implements PairedDevic
                         .setPositiveButton("Forget", (d, w) -> {
                             pairedDevicesManager.removeDevice(device.getDeviceId());
                             refreshPairedList();
-                            Toast.makeText(DeviceDiscoveryActivity.this, "Device removed", Toast.LENGTH_SHORT).show();
                         })
                         .setNegativeButton("Cancel", null)
                         .show();
@@ -495,7 +657,7 @@ public class DeviceDiscoveryActivity extends BaseActivity implements PairedDevic
         @Override
         public int getItemCount() { return items.size(); }
 
-        class ViewHolder extends RecyclerView.ViewHolder {
+        static class ViewHolder extends RecyclerView.ViewHolder {
             TextView name, detail;
             ImageView icon;
             ImageButton btnDelete;

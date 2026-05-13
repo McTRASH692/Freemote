@@ -1,13 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- ============================================================================
+     FILE: themes.xml
+     WHAT:  Theme definitions — 10 color themes the user can choose from,
+            plus a "custom" theme and a translucent overlay theme.
+            Each theme sets the colors for every part of the UI
+            (background, buttons, text, touchpad, etc.).
+     ============================================================================ -->
 <resources>
-    <!-- Base theme that all themes extend -->
+    <!-- ================================================================
+         BASE THEME — shared settings inherited by all themes.
+         Sets the status bar and navigation bar to black.
+         ================================================================ -->
     <style name="Theme_Freemote_Base" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="android:statusBarColor">@android:color/black</item>
         <item name="android:navigationBarColor">@android:color/black</item>
         <item name="android:windowLightStatusBar">false</item>
     </style>
 
-    <!-- DEFAULT THEME (used by manifest and fallback) -->
+    <!-- ================================================================
+         DEFAULT THEME — This is the initial theme the app loads with.
+         It matches Theme 1 (Original) and is also used as a fallback
+         if something goes wrong with theme selection.
+         ================================================================ -->
     <style name="Theme_Freemote" parent="Theme_Freemote_Base">
         <item name="colorBackground">@color/theme1_bg_dark</item>
         <item name="colorSurface">@color/theme1_button</item>
@@ -31,7 +45,13 @@
         <item name="android:textColorPrimary">@color/theme1_text</item>
     </style>
 
-    <!-- Theme 1: Original -->
+    <!-- ================================================================
+         THEME 1–10: Color themes the user can pick from in settings.
+         Each is a different color scheme with its own background,
+         accent, and button colors.
+         ================================================================ -->
+
+    <!-- Theme 1: Original (Dark Purple + Green) -->
     <style name="Theme_Freemote_Theme1" parent="Theme_Freemote_Base">
         <item name="colorBackground">@color/theme1_bg_dark</item>
         <item name="colorSurface">@color/theme1_button</item>
@@ -273,9 +293,11 @@
         <item name="android:textColorPrimary">@color/theme10_text</item>
     </style>
 
-    <!-- Custom Theme — concrete fallback colors so Android can resolve attrs at
-         inflation time. Actual user-chosen colors are applied imperatively at
-         runtime by BaseActivity via CustomThemeManager.getPermanentColor(). -->
+    <!-- ================================================================
+         CUSTOM THEME — Allows the user to create their own color scheme.
+         The colors below are just placeholders so Android doesn't crash;
+         the actual user-picked colors are applied at runtime.
+         ================================================================ -->
     <style name="Theme_Freemote_Custom" parent="Theme_Freemote_Base">
         <item name="colorBackground">#FF000000</item>
         <item name="colorButtonBg">#FF1A0D33</item>
@@ -295,7 +317,11 @@
         <item name="android:textColorPrimary">#FFFFFFFF</item>
     </style>
 
-    <!-- Translucent theme for VoiceCommandActivity -->
+    <!-- ================================================================
+         TRANSLUCENT OVERLAY — A special transparent theme used only by
+         the voice command screen. It makes the activity appear as a
+         semi-transparent overlay on top of whatever the user was doing.
+         ================================================================ -->
     <style name="Theme_AppCompat_Translucent" parent="Theme.AppCompat.DayNight.NoActionBar">
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowBackground">@android:color/transparent</item>

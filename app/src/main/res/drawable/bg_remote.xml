@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- ============================================================================
+     FILE: bg_remote.xml
+     WHAT:  Remote control body background — a simple solid-colored rectangle
+            with no border or rounded corners. Serves as the main backdrop
+            for the entire remote control interface.
+     ============================================================================ -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
     <solid android:color="?attr/colorBackground" />
 </shape>

@@ -1,5 +1,14 @@
 package com.mctrash692.freemote.ui;
 
+// ============================================================================
+// FILE: PairedDevicesDialog.java
+// WHAT:  A pop-up window (dialog) that shows ALL of your paired TV devices
+//        at once. On the discovery screen only the first 3 devices are
+//        shown; this dialog appears when you tap "Show All" so you can see
+//        every device. You can tap a device to connect to it, or delete a
+//        device using the delete button next to it.
+// ============================================================================
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -25,44 +34,80 @@ import com.mctrash692.freemote.util.PairedDevicesManager;
 
 import java.util.List;
 
+// ==========================================================================
+// SECTION: PAIRED DEVICES DIALOG
+// WHAT:  A pop-up window that shows every TV you have paired with the app.
+//        You can tap a device to connect to it or tap the delete button
+//        to remove a device from your paired list.
+// ==========================================================================
+
 public class PairedDevicesDialog extends DialogFragment {
     
     private List<PairedDevice> devices;
     private PairedDevicesManager pairedDevicesManager;
     private OnDeviceSelectedListener listener;
+    private Context activityContext;
+    
+    // ==========================================================================
+    // INTERFACE: OnDeviceSelectedListener
+    // WHAT:  The communication channel back to the screen that opened this
+    //        dialog. When you tap a device or delete one, these methods
+    //        notify the parent screen so it can update its list.
+    // ==========================================================================
     
     public interface OnDeviceSelectedListener {
         void onDeviceSelected(TvDevice device);
         void onDeviceRemoved();
     }
     
-    public static PairedDevicesDialog newInstance(List<PairedDevice> devices) {
+    // ==========================================================================
+    // METHOD: newInstance
+    // WHAT:  Creates a new instance of this dialog. Use this instead of the
+    //        constructor so Android can properly manage the dialog's state.
+    // ==========================================================================
+    
+    public static PairedDevicesDialog newInstance() {
         PairedDevicesDialog dialog = new PairedDevicesDialog();
         Bundle args = new Bundle();
         dialog.setArguments(args);
         return dialog;
     }
     
+    // ==========================================================================
+    // METHOD: onAttach
+    // WHAT:  Runs when the dialog attaches to the screen that opened it.
+    //        Sets up access to the device storage and remembers the parent
+    //        screen so it can send notifications back to it.
+    // ==========================================================================
+    
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
+        activityContext = context;
         if (context instanceof OnDeviceSelectedListener) {
             listener = (OnDeviceSelectedListener) context;
         }
         pairedDevicesManager = new PairedDevicesManager(context);
     }
     
+    // ==========================================================================
+    // METHOD: onCreateDialog
+    // WHAT:  Runs when Android builds the dialog. Loads all paired devices
+    //        from storage, creates a scrollable list, and sets up what
+    //        happens when you tap a device or delete one.
+    // ==========================================================================
+    
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         devices = pairedDevicesManager.getAllDevices();
         
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        AlertDialog.Builder builder = new AlertDialog.Builder(activityContext);
         builder.setTitle("Paired Devices (" + devices.size() + ")");
         
-        View view = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_paired_devices, null);
+        View view = LayoutInflater.from(activityContext).inflate(R.layout.dialog_paired_devices, null);
         RecyclerView recyclerView = view.findViewById(R.id.rvPairedDevicesFull);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        recyclerView.setLayoutManager(new LinearLayoutManager(activityContext));
         recyclerView.setAdapter(new PairedDevicesAdapter(devices, pairedDevicesManager, new PairedDevicesAdapter.Callback() {
             @Override
             public void onDeviceSelected(PairedDevice device) {
@@ -88,7 +133,20 @@ public class PairedDevicesDialog extends DialogFragment {
         return builder.create();
     }
     
+    // ==========================================================================
+    // SECTION: DEVICE LIST ADAPTER
+    // WHAT:  Converts the list of paired devices into row items that the
+    //        scrollable list can show. Each row has the device name, type,
+    //        IP address, an icon, and a delete button.
+    // ==========================================================================
+    
     static class PairedDevicesAdapter extends RecyclerView.Adapter<PairedDevicesAdapter.ViewHolder> {
+        
+        // ==========================================================================
+        // INTERFACE: Callback
+        // WHAT:  Lets the adapter tell the dialog when a device is tapped
+        //        or deleted so the dialog can respond.
+        // ==========================================================================
         
         interface Callback {
             void onDeviceSelected(PairedDevice device);
@@ -132,7 +190,6 @@ public class PairedDevicesDialog extends DialogFragment {
                             if (callback != null) {
                                 callback.onDeviceRemoved();
                             }
-                            Toast.makeText(v.getContext(), "Device removed", Toast.LENGTH_SHORT).show();
                         })
                         .setNegativeButton("Cancel", null)
                         .show();

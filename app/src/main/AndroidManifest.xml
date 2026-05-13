@@ -57,7 +57,12 @@
         android:usesCleartextTraffic="true"
         android:networkSecurityConfig="@xml/network_security_config">
 
-        <!-- Discovery Activity (LAUNCHER) -->
+        <!-- ============================================================
+             DeviceDiscoveryActivity — The first screen the user sees.
+             Scans the local network for TVs running the remote server,
+             lists them, and lets the user pick one or enter an IP.
+             This is the LAUNCHER activity (app starts here).
+             ============================================================ -->
         <activity
             android:name=".ui.DeviceDiscoveryActivity"
             android:exported="true">
@@ -67,39 +72,75 @@
             </intent-filter>
         </activity>
 
-        <!-- Remote Control Activity -->
+        <!-- ============================================================
+             RemoteActivity — The main remote control screen. Shows all
+             the buttons (power, volume, D-pad, touchpad, etc.) after
+             the user has connected to a TV.
+             ============================================================ -->
         <activity android:name=".ui.RemoteActivity" android:exported="false" />
 
-        <!-- Settings Activity -->
+        <!-- ============================================================
+             SettingsActivity — App settings screen where the user can
+             configure preferences like theme selection, connection
+             settings, and other options.
+             ============================================================ -->
         <activity android:name=".ui.SettingsActivity" android:exported="false" />
 
-        <!-- Device Management Activities -->
+        <!-- ============================================================
+             DeviceManagementActivity — Shows a list of saved TV devices
+             that the user has previously connected to.
+             ============================================================ -->
         <activity android:name=".ui.DeviceManagementActivity" android:exported="false" />
+
+        <!-- ============================================================
+             DeviceEditActivity — Lets the user edit or add a TV device's
+             connection details (name, IP address, port).
+             ============================================================ -->
         <activity android:name=".ui.DeviceEditActivity" android:exported="false" />
 
-        <!-- Theme Activities -->
+        <!-- ============================================================
+             CustomThemeActivity — Lets the user create custom color
+             themes by picking their own colors for each part of the UI.
+             ============================================================ -->
         <activity android:name=".ui.CustomThemeActivity" android:exported="false" />
 
-        <!-- Voice Command Activity -->
+        <!-- ============================================================
+             VoiceCommandActivity — A translucent overlay activity that
+             listens for voice commands. The user can speak commands
+             (like "volume up", "mute") instead of pressing buttons.
+             ============================================================ -->
         <activity
             android:name=".ui.VoiceCommandActivity"
             android:exported="false"
             android:theme="@style/Theme_AppCompat_Translucent" />
 
-        <!-- Services -->
+        <!-- ============================================================
+             SERVICES — Background processes that run even when the
+             activity is not in the foreground.
+             ============================================================ -->
+
+        <!-- ============================================================
+             MouseCursorService — Draws a mouse cursor overlay on the
+             screen when the user is using touchpad mode on the remote.
+             ============================================================ -->
         <service
             android:name=".ui.MouseCursorService"
             android:exported="false" />
 
-        <service
-            android:name=".tv.TvRemoteReceiverService"
-            android:exported="false" />
-
+        <!-- ============================================================
+             RemoteService — The main background service that maintains
+             the WebSocket / network connection to the TV, so the remote
+             stays connected even if the UI is minimized.
+             ============================================================ -->
         <service
             android:name=".RemoteService"
             android:foregroundServiceType="connectedDevice"
             android:exported="false" />
 
+        <!-- ============================================================
+             ScreenCastingService — Handles capturing the device screen
+             and streaming it to the TV (screen mirroring / casting).
+             ============================================================ -->
         <service
             android:name=".ScreenCastingService"
             android:foregroundServiceType="mediaProjection"

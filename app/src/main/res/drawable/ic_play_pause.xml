@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ============================================================================
+     FILE: ic_play_pause.xml
+     WHAT:  Play / Pause combo icon — a play triangle on the left and two
+            vertical pause bars on the right. Used to toggle playback.
+     ============================================================================ -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Play triangle pointing right -->
+    <path android:fillColor="@android:color/transparent" android:strokeColor="?attr/colorButtonIcon" android:strokeWidth="2" android:pathData="M5,5 L14,12 L5,19"/>
+    <!-- Left pause bar -->
+    <path android:fillColor="@android:color/transparent" android:strokeColor="?attr/colorButtonIcon" android:strokeWidth="2" android:pathData="M18,7v10"/>
+    <!-- Right pause bar -->
+    <path android:fillColor="@android:color/transparent" android:strokeColor="?attr/colorButtonIcon" android:strokeWidth="2" android:pathData="M21,7v10"/>
+</vector>

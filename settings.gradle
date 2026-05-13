@@ -1,2 +1,7 @@
+// ============================================================================
+// FILE: settings.gradle
+// WHAT:  Project settings — gives the project a name ("Freemote") and
+//        tells Gradle which modules to build (just "app" in this case).
+// ============================================================================
 rootProject.name = "Freemote"
 include ':app'

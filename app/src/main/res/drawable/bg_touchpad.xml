@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- ============================================================================
+     FILE: bg_touchpad.xml
+     WHAT:  Touchpad area background — a large rounded rectangle with a
+            distinct fill and border. Defines the touch-sensitive area
+            where the user can swipe / move the TV cursor.
+     ============================================================================ -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
     <solid android:color="?attr/colorTouchpadBg" />
     <stroke android:width="2dp" android:color="?attr/colorPrimary" />

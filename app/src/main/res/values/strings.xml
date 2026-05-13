@@ -1,11 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- ============================================================================
+     FILE: strings.xml
+     WHAT:  Text labels / strings — all the words and phrases shown in the
+            app's user interface. Android uses these so the app can be
+            translated into different languages (internationalization).
+     ============================================================================ -->
 <resources>
+    <!-- App name shown on the home screen and in the app drawer -->
     <string name="app_name">Freemote</string>
+
+    <!-- Device discovery screen -->
     <string name="scanning">Scanning for TVs…</string>
     <string name="no_devices">No devices found</string>
     <string name="manual_entry">Enter IP manually</string>
+
+    <!-- Generic buttons -->
     <string name="connect">Connect</string>
     <string name="cancel">Cancel</string>
+
+    <!-- Connection fields -->
     <string name="ip_hint">TV IP address</string>
     <string name="port_hint">Port</string>
 </resources>

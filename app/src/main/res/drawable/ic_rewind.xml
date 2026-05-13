@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ============================================================================
+     FILE: ic_rewind.xml
+     WHAT:  Rewind icon — two left-pointing triangles side by side.
+            Used to skip backward in media playback.
+     ============================================================================ -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Left (outer) triangle pointing left -->
+    <path android:fillColor="@android:color/transparent" android:strokeColor="?attr/colorButtonIcon" android:strokeWidth="2" android:pathData="M12,6 L5,12 L12,18"/>
+    <!-- Right (inner) triangle pointing left -->
+    <path android:fillColor="@android:color/transparent" android:strokeColor="?attr/colorButtonIcon" android:strokeWidth="2" android:pathData="M19,6 L12,12 L19,18"/>
+</vector>

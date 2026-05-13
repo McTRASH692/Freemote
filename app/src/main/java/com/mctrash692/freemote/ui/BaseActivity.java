@@ -1,5 +1,15 @@
 package com.mctrash692.freemote.ui;
 
+// ============================================================================
+// FILE: BaseActivity.java
+// WHAT:  The base (parent) class for every screen in the app. It handles
+//        automatically applying the chosen theme colors to all buttons,
+//        text fields, labels, switches, and other visual elements so every
+//        screen looks consistent. Each Activity screen in the app inherits
+//        from this class so they all get the same theming behavior without
+//        each one having to do it individually.
+// ============================================================================
+
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.view.View;
@@ -17,16 +27,38 @@ import com.mctrash692.freemote.R;
 import com.mctrash692.freemote.util.CustomThemeManager;
 import com.mctrash692.freemote.util.ThemeManager;
 
+// ==========================================================================
+// SECTION: BASE ACTIVITY
+// WHAT:  All screens in the app inherit from this class. It makes sure the
+//        chosen color theme is applied to every button, label, text field,
+//        and other element automatically so each screen looks consistent.
+// ==========================================================================
+
 public abstract class BaseActivity extends AppCompatActivity {
 
+    // ==========================================================================
+    // SECTION: THEME COLORS
+    // WHAT:  Stores the colors for every part of the current theme. These
+    //        are loaded from storage when each screen opens.
+    // ==========================================================================
+
+    // Whether a custom theme is active
     private boolean isCustomTheme = false;
+    // Individual color values for each UI element type
     private int bgColor, buttonBg, primary, textPrimary, textSecondary;
     private int navZone, divider, touchpadBg, touchpadText;
+    // Screen density (used to convert pixels to dips)
     private float density;
+
+    // ==========================================================================
+    // SECTION: SCREEN LIFECYCLE
+    // WHAT:  Runs when the screen first opens. Loads the theme colors before
+    //        anything else so the screen is already colored when it appears.
+    // ==========================================================================
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        // Apply theme first
+        // Apply theme first (before the screen layout loads)
         ThemeManager.applyTheme(this);
         super.onCreate(savedInstanceState);
 
@@ -47,6 +79,13 @@ public abstract class BaseActivity extends AppCompatActivity {
         density = getResources().getDisplayMetrics().density;
     }
 
+    // ==========================================================================
+    // SECTION: THEME APPLICATION
+    // WHAT:  Every time a screen layout is loaded (setContentView), these
+    //        methods check if a custom theme is active and apply its colors
+    //        to all visible elements on the screen.
+    // ==========================================================================
+
     @Override
     public void setContentView(int layoutResID) {
         super.setContentView(layoutResID);
@@ -65,6 +104,15 @@ public abstract class BaseActivity extends AppCompatActivity {
         if (isCustomTheme) applyCustomColors(getWindow().getDecorView());
     }
 
+    // ==========================================================================
+    // METHOD: makeBackground
+    // WHAT:  Creates a rounded rectangle shape with a border (stroke) in the
+    //        given color. This is used to give buttons and other elements a
+    //        consistent look with rounded corners and colored outlines.
+    // INPUT: color = fill color, cornerRadius = rounding amount, 
+    //        strokeColor = border color, strokeWidth = border thickness
+    // ==========================================================================
+
     private GradientDrawable makeBackground(int color, int cornerRadius, int strokeColor, float strokeWidth) {
         GradientDrawable gd = new GradientDrawable();
         gd.setShape(GradientDrawable.RECTANGLE);
@@ -74,9 +122,20 @@ public abstract class BaseActivity extends AppCompatActivity {
         return gd;
     }
 
+    // ==========================================================================
+    // METHOD: applyCustomColors
+    // WHAT:  Goes through every visible element on the screen and changes its
+    //        colors to match the custom theme. Runs automatically whenever a
+    //        screen loads. Image buttons get a colored background and tint,
+    //        regular buttons get colored backgrounds, text fields get colored
+    //        text and hints, and the touchpad area gets special colors.
+    // INPUT: view = the starting element (usually the whole screen's root)
+    // ==========================================================================
+
     private void applyCustomColors(View view) {
         if (view == null) return;
 
+        // Apply different styling depending on the type of element
         if (view instanceof ImageButton) {
             ImageButton btn = (ImageButton) view;
             Object tag = btn.getTag();
@@ -84,6 +143,7 @@ public abstract class BaseActivity extends AppCompatActivity {
 
             btn.setBackground(makeBackground(buttonBg, 8, primary, 2));
 
+            // Brand icons (like YouTube, Netflix logos) keep their original colors
             if (!isBrandIcon) {
                 btn.setColorFilter(textPrimary);
             } else {
@@ -103,7 +163,8 @@ public abstract class BaseActivity extends AppCompatActivity {
         } else if (view instanceof TextView) {
             TextView tv = (TextView) view;
             String text = tv.getText() != null ? tv.getText().toString() : "";
-            if (text.equals("VOL") || text.equals("CH") || text.equals("VOL") || 
+            // Labels like "VOL" and "CH" use secondary (dimmer) color
+            if (text.equals("VOL") || text.equals("CH") || 
                 tv.getHint() != null || (tv.getTag() != null && "brand_label".equals(tv.getTag()))) {
                 tv.setTextColor(textSecondary);
             } else {
@@ -113,6 +174,7 @@ public abstract class BaseActivity extends AppCompatActivity {
             // Keep switch default styling
         }
 
+        // Special styling for the touchpad area
         if (view.getId() == R.id.layoutTouchpad) {
             view.setBackground(makeBackground(touchpadBg, 16, primary, 2));
             if (view instanceof ViewGroup) {
@@ -126,6 +188,7 @@ public abstract class BaseActivity extends AppCompatActivity {
             }
         }
 
+        // Recursively process all child elements inside this one
         if (view instanceof ViewGroup) {
             ViewGroup group = (ViewGroup) view;
             for (int i = 0; i < group.getChildCount(); i++) {

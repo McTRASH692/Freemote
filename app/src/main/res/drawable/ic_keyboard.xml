@@ -1,3 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ============================================================================
+     FILE: ic_keyboard.xml
+     WHAT:  Keyboard icon — a rectangular keyboard outline with rows of
+            small key squares inside. Opens an on-screen keyboard for
+            text input on the TV.
+     ============================================================================ -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp"
     android:height="24dp"
@@ -7,7 +14,7 @@
     <!-- Outer keyboard body -->
     <path
         android:fillColor="@android:color/transparent"
-        android:strokeColor="?attr/colorTextPrimary"
+        android:strokeColor="?attr/colorButtonIcon"
         android:strokeWidth="1.5"
         android:strokeLineCap="round"
         android:strokeLineJoin="round"
@@ -15,7 +22,7 @@
 
     <!-- Row 1 keys: Q W E R T Y U I O P -->
     <path
-        android:fillColor="?attr/colorTextPrimary"
+        android:fillColor="?attr/colorButtonIcon"
         android:pathData="
             M4.5,8.5 h1 v1 h-1 z
             M6.5,8.5 h1 v1 h-1 z
@@ -28,7 +35,7 @@
 
     <!-- Row 2 keys: A S D F G H J K L -->
     <path
-        android:fillColor="?attr/colorTextPrimary"
+        android:fillColor="?attr/colorButtonIcon"
         android:pathData="
             M5.5,11 h1 v1 h-1 z
             M7.5,11 h1 v1 h-1 z
@@ -40,17 +47,17 @@
 
     <!-- Row 3: Z X C — spacebar — V B N M -->
     <path
-        android:fillColor="?attr/colorTextPrimary"
+        android:fillColor="?attr/colorButtonIcon"
         android:pathData="
             M4.5,13.5 h1 v1 h-1 z
             M6.5,13.5 h1 v1 h-1 z
             M8.5,13.5 h1 v1 h-1 z"/>
     <!-- Spacebar -->
     <path
-        android:fillColor="?attr/colorTextPrimary"
+        android:fillColor="?attr/colorButtonIcon"
         android:pathData="M10,13.5 h4 v1 h-4 z"/>
     <path
-        android:fillColor="?attr/colorTextPrimary"
+        android:fillColor="?attr/colorButtonIcon"
         android:pathData="
             M15.5,13.5 h1 v1 h-1 z
             M17.5,13.5 h1 v1 h-1 z
@@ -58,7 +65,7 @@
 
     <!-- Enter key (bottom-right, wider) -->
     <path
-        android:fillColor="?attr/colorTextPrimary"
+        android:fillColor="?attr/colorButtonIcon"
         android:pathData="M20,10.75 h1.5 v1.5 h-1.5 z"/>
 
 </vector>

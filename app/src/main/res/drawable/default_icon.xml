@@ -1,3 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ============================================================================
+     FILE: default_icon.xml
+     WHAT:  Default / fallback app icon — a generic circle-with-dot shape
+            used when no custom icon is available for an app in the app
+            picker. Matches the ic_circle_dot look but always white.
+     ============================================================================ -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp"
     android:height="24dp"

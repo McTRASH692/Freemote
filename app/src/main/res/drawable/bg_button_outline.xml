@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ============================================================================
+     FILE: bg_button_outline.xml
+     WHAT:  Outline-only button background — a rounded rectangle with NO
+            fill, just a colored border. Used for secondary/ghost buttons.
+     ============================================================================ -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Border/outline only (no fill color — transparent inside) -->
+    <stroke android:width="2dp" android:color="?attr/colorPrimary" />
+    <!-- Rounded corners (8dp radius) -->
+    <corners android:radius="8dp" />
+</shape>

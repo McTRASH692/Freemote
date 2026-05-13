@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- ============================================================================
+     FILE: attrs.xml
+     WHAT:  Custom attribute definitions — declares all the color "slots"
+            that each theme must fill in. The app's UI (buttons, text,
+            backgrounds, etc.) reads these attributes to know what color
+            to draw, so switching themes just swaps the color values.
+     ============================================================================ -->
 <resources>
-    <!-- Theme color attributes - UI reads from these -->
+    <!-- ================================================================
+         STANDARD THEME ATTRIBUTES — used by the built-in 10 themes.
+         Each theme's style definition fills these with specific colors.
+         ================================================================ -->
     <attr name="colorBackground" format="color" />
     <attr name="colorSurface" format="color" />
     <attr name="colorPrimary" format="color" />

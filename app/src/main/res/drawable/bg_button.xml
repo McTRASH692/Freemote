@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- ============================================================================
+     FILE: bg_button.xml
+     WHAT:  Button background — a rounded rectangle with a solid fill color
+            and a thin colored border. Used as the background for every
+            button on the remote control.
+     ============================================================================ -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
     <solid android:color="?attr/colorButtonBg" />
     <stroke android:width="2dp" android:color="?attr/colorPrimary" />

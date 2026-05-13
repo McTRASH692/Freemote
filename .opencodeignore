@@ -1,0 +1,42 @@
+# =========================
+# OpenCode ignore rules
+# Android / Gradle project optimized
+# =========================
+
+# ---------- Build outputs (HIGHEST PRIORITY) ----------
+app/build/
+build/
+.gradle/
+output/
+
+# ---------- Android generated artifacts ----------
+app/freemote-src.zip
+app/freemote.keystore
+app/proguard-rules.pro
+
+# ---------- Gradle system noise ----------
+gradle/
+gradle.properties
+gradlew
+
+# ---------- IDE / tooling caches ----------
+.idea/
+*.iml
+
+# ---------- Logs / runtime artifacts ----------
+*.log
+build.log
+build_full.log
+build_counter.txt
+
+# ---------- Local environment / secrets ----------
+local.properties
+keystore.properties
+
+# ---------- Git internals (avoid snapshot duplication) ----------
+.git/
+
+# ---------- Misc scripts / tooling ----------
+build.sh
+scp/
+.blackboxcli

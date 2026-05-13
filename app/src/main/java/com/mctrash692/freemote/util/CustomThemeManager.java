@@ -1,5 +1,15 @@
 package com.mctrash692.freemote.util;
 
+// ============================================================================
+// FILE: CustomThemeManager.java
+// WHAT:  Lets you create your own custom color theme for the app. You pick
+//        colors for the background, buttons, text, touchpad, and other parts
+//        of the screen. Colors can be previewed (temporary) before saving
+//        (permanent). If you do not save, the preview colors are thrown away.
+// WHY:   Not everyone likes the preset themes. This file gives you the
+//        freedom to make the app look exactly how you want.
+// ============================================================================
+
 import android.content.Context;
 import android.content.SharedPreferences;
 
@@ -8,18 +18,36 @@ import java.util.Map;
 
 public class CustomThemeManager {
     
+    // ==========================================================================
+    // CONSTANTS
+    // WHAT:  Names of the two storage areas (temporary preview vs. permanent)
+    //        and the names of each color setting you can change.
+    // ==========================================================================
+
+    // Temporary storage (colors you are previewing but haven't saved yet)
     private static final String PREFS_TEMP = "custom_theme_temp";
+    // Permanent storage (colors you chose to keep)
     private static final String PREFS_PERM = "custom_theme_permanent";
 
-    public static final String KEY_BACKGROUND = "background";
-    public static final String KEY_BUTTON_BG = "buttonBg";
-    public static final String KEY_PRIMARY = "primary";
-    public static final String KEY_TEXT_PRIMARY = "textPrimary";
-    public static final String KEY_TEXT_SECONDARY = "textSecondary";
-    public static final String KEY_NAV_ZONE = "navZone";
-    public static final String KEY_DIVIDER = "divider";
-    public static final String KEY_TOUCHPAD_BG = "touchpadBg";
-    public static final String KEY_TOUCHPAD_TEXT = "touchpadText";
+    // Each of these is a name for a part of the screen whose color you can change
+    public static final String KEY_BACKGROUND = "background";     // Main background color of the screen
+    public static final String KEY_BUTTON_BG = "buttonBg";       // Background color of buttons
+    public static final String KEY_PRIMARY = "primary";           // Main accent color (highlights, borders)
+    public static final String KEY_TEXT_PRIMARY = "textPrimary";  // Color of main text on the screen
+    public static final String KEY_TEXT_SECONDARY = "textSecondary";  // Color of less important text
+    public static final String KEY_NAV_ZONE = "navZone";          // Color of the navigation area
+    public static final String KEY_DIVIDER = "divider";           // Color of lines that separate sections
+    public static final String KEY_TOUCHPAD_BG = "touchpadBg";   // Background color of the touchpad area
+    public static final String KEY_TOUCHPAD_TEXT = "touchpadText";  // Text color on the touchpad
+
+    // ==========================================================================
+    // METHOD: getDefaultColor
+    // WHAT:  Returns the default (factory) color for any part of the theme.
+    //        Used when you haven't changed a color or when resetting to
+    //        defaults.
+    // INPUT: component = which part of the theme (background, button, etc.)
+    // OUTPUT: the default color as a number (hex ARGB value like 0xFF000000)
+    // ==========================================================================
 
     public static int getDefaultColor(String component) {
         switch (component) {
@@ -36,15 +64,52 @@ public class CustomThemeManager {
         }
     }
 
+    // ==========================================================================
+    // SECTION: TEMPORARY (PREVIEW) COLORS
+    // WHAT:  Functions for trying out colors without saving them. You see
+    //        the changes immediately but they are discarded if you don't save.
+    // ==========================================================================
+
+    // ==========================================================================
+    // METHOD: saveTempColor
+    // WHAT:  Stores a single color change as a preview (not yet permanent).
+    //        You can change multiple colors and see how they look together.
+    // INPUT: context   = the app (needed to access storage)
+    //        component = which part of the theme to change
+    //        color     = the new color as a number
+    // ==========================================================================
+
     public static void saveTempColor(Context context, String component, int color) {
         SharedPreferences prefs = context.getSharedPreferences(PREFS_TEMP, Context.MODE_PRIVATE);
         prefs.edit().putInt(component, color).apply();
     }
 
+    // ==========================================================================
+    // METHOD: getTempColor
+    // WHAT:  Gets a preview color you set earlier. If you haven't changed
+    //        that part, it returns the default color instead.
+    // INPUT: context   = the app
+    //        component = which part of the theme to look up
+    // OUTPUT: the color (either your preview choice or the default)
+    // ==========================================================================
+
     public static int getTempColor(Context context, String component) {
         SharedPreferences prefs = context.getSharedPreferences(PREFS_TEMP, Context.MODE_PRIVATE);
         return prefs.getInt(component, getDefaultColor(component));
     }
+
+    // ==========================================================================
+    // SECTION: PERMANENT THEME
+    // WHAT:  Functions for saving your chosen colors so they stay even after
+    //        you close and reopen the app.
+    // ==========================================================================
+
+    // ==========================================================================
+    // METHOD: savePermanentTheme
+    // WHAT:  Takes all the colors you previewed and saves them permanently.
+    //        Also marks the "Custom" theme as active in the theme settings.
+    // INPUT: context = the app (needed to access storage)
+    // ==========================================================================
 
     public static void savePermanentTheme(Context context) {
         SharedPreferences tempPrefs = context.getSharedPreferences(PREFS_TEMP, Context.MODE_PRIVATE);
@@ -67,32 +132,41 @@ public class CustomThemeManager {
         themePrefs.edit().putInt("current_theme", ThemeManager.THEME_CUSTOM).apply();
     }
 
+    // ==========================================================================
+    // METHOD: discardTempTheme
+    // WHAT:  Throws away all the temporary preview colors you were trying
+    //        out. Use this when you decide you don't like the changes.
+    // INPUT: context = the app
+    // ==========================================================================
+
     public static void discardTempTheme(Context context) {
         SharedPreferences tempPrefs = context.getSharedPreferences(PREFS_TEMP, Context.MODE_PRIVATE);
         tempPrefs.edit().clear().apply();
     }
+
+    // ==========================================================================
+    // METHOD: getPermanentColor
+    // WHAT:  Gets a color from your permanently saved custom theme. If you
+    //        never changed that part, it returns the default.
+    // INPUT: context   = the app
+    //        component = which part of the theme to look up
+    // OUTPUT: the saved color (or default if never changed)
+    // ==========================================================================
 
     public static int getPermanentColor(Context context, String component) {
         SharedPreferences permPrefs = context.getSharedPreferences(PREFS_PERM, Context.MODE_PRIVATE);
         return permPrefs.getInt(component, getDefaultColor(component));
     }
 
+    // ==========================================================================
+    // METHOD: isCustomThemeActive
+    // WHAT:  Checks whether the custom theme is currently turned on.
+    // INPUT: context = the app
+    // OUTPUT: true if the custom theme is active, false otherwise
+    // ==========================================================================
+
     public static boolean isCustomThemeActive(Context context) {
         SharedPreferences themePrefs = context.getSharedPreferences("theme_prefs", Context.MODE_PRIVATE);
         return themePrefs.getInt("current_theme", 0) == ThemeManager.THEME_CUSTOM;
-    }
-    
-    public static Map<String, Integer> getAllPermanentColors(Context context) {
-        Map<String, Integer> colors = new HashMap<>();
-        colors.put(KEY_BACKGROUND, getPermanentColor(context, KEY_BACKGROUND));
-        colors.put(KEY_BUTTON_BG, getPermanentColor(context, KEY_BUTTON_BG));
-        colors.put(KEY_PRIMARY, getPermanentColor(context, KEY_PRIMARY));
-        colors.put(KEY_TEXT_PRIMARY, getPermanentColor(context, KEY_TEXT_PRIMARY));
-        colors.put(KEY_TEXT_SECONDARY, getPermanentColor(context, KEY_TEXT_SECONDARY));
-        colors.put(KEY_NAV_ZONE, getPermanentColor(context, KEY_NAV_ZONE));
-        colors.put(KEY_DIVIDER, getPermanentColor(context, KEY_DIVIDER));
-        colors.put(KEY_TOUCHPAD_BG, getPermanentColor(context, KEY_TOUCHPAD_BG));
-        colors.put(KEY_TOUCHPAD_TEXT, getPermanentColor(context, KEY_TOUCHPAD_TEXT));
-        return colors;
     }
 }

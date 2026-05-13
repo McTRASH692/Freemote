@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- ============================================================================
+     FILE: colors.xml
+     WHAT:  Color palette — defines all the colors used by each of the 10
+            themes. Each theme has 5 colors: dark background, medium
+            background, accent (highlight), text, and button fill.
+     ============================================================================ -->
 <resources>
     <!-- Theme 1: Original (Dark Purple + Green) -->
     <color name="theme1_bg_dark">#000000</color>
@@ -56,12 +62,12 @@
     <color name="theme8_text">#1A1A1A</color>
     <color name="theme8_button">#E0E0E0</color>
 
-    <!-- Theme 9: Light - Warm Paper -->
-    <color name="theme9_bg_dark">#000000</color>
-    <color name="theme9_bg_medium">#000000</color>
-    <color name="theme9_accent">#FFFF00</color>
-    <color name="theme9_text">#FFFFFF</color>
-    <color name="theme9_button">#00FF00</color>
+    <!-- Theme 9: Warm Paper -->
+    <color name="theme9_bg_dark">#FFF8F0</color>
+    <color name="theme9_bg_medium">#FFFDF5</color>
+    <color name="theme9_accent">#E67E22</color>
+    <color name="theme9_text">#3E2723</color>
+    <color name="theme9_button">#F5E6CC</color>
 
     <!-- Theme 10: Purple Haze -->
     <color name="theme10_bg_dark">#120A1E</color>

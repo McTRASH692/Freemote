@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ============================================================================
+     FILE: ic_fast_forward.xml
+     WHAT:  Fast-forward icon — two right-pointing triangles side by side.
+            Used to skip ahead in media playback.
+     ============================================================================ -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Right (outer) triangle pointing right -->
+    <path android:fillColor="@android:color/transparent" android:strokeColor="?attr/colorButtonIcon" android:strokeWidth="2" android:pathData="M12,6 L19,12 L12,18"/>
+    <!-- Left (inner) triangle pointing right -->
+    <path android:fillColor="@android:color/transparent" android:strokeColor="?attr/colorButtonIcon" android:strokeWidth="2" android:pathData="M5,6 L12,12 L5,18"/>
+</vector>

@@ -1,5 +1,12 @@
 package com.mctrash692.freemote.remote.samsung;
 
+// ============================================================================
+// FILE: SamsungWebSocket.java
+// WHAT:  Handles the WebSocket connection to older Samsung Smart TVs.
+//        Opens a WebSocket to the TV, performs a pairing handshake,
+//        and sends remote-control commands (keys like POWER, VOLUME, HOME, etc.).
+// ============================================================================
+
 import android.util.Base64;
 import android.util.Log;
 
@@ -12,20 +19,42 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 public class SamsungWebSocket {
+
+    // ==========================================================================
+    // SECTION: CLASS DATA
+    // WHAT:  These variables hold the TV connection details, the WebSocket
+    //        client object, the connection/pairing state, and the listener
+    //        that reports events back to the rest of the app.
+    // ==========================================================================
+
     private static final String TAG = "SamsungWebSocket";
 
-    private WebSocketClient client;
+    /** The WebSocket client that talks to the TV over the network. */
+    private volatile WebSocketClient client;
+    /** The TV's IP address on the local network (e.g. "192.168.1.100"). */
     private final String ip;
+    /** The port number the TV listens on (usually 8001 or 8002). */
     private final int port;
     // N4: volatile so reads from other threads see writes from the WS thread.
+    /** true once the WebSocket connection is open and ready. */
     private volatile boolean isConnected = false;
+    /** true once the remote has been authorized (paired) by the TV. */
     private volatile boolean isPaired    = false;
-    private ConnectionListener listener;
+    /** The object that receives callbacks (connected, error, etc.). */
+    private final ConnectionListener listener;
+    /** The token the TV sends for pairing; null until it arrives. */
     private String pairingToken = null;
 
     // App name encoded the same way SamsungRemote does it.
+    /** Base64-encoded app name ("Freemote") sent to the TV for identification. */
     private static final String APP_NAME_B64 =
         Base64.encodeToString("Freemote".getBytes(), Base64.NO_WRAP);
+
+    // ==========================================================================
+    // SECTION: CONNECTION LISTENER INTERFACE
+    // WHAT:  Defines the callbacks that SamsungWebSocket uses to notify
+    //        the rest of the app about connection events.
+    // ==========================================================================
 
     public interface ConnectionListener {
         void onConnected();
@@ -34,12 +63,34 @@ public class SamsungWebSocket {
         void onPairingRequired(String token);
     }
 
+    // ==========================================================================
+    // SECTION: CONSTRUCTOR
+    // WHAT:  Stores the TV's IP address, port number, and a listener object.
+    //        The actual connection does not happen here — call connect() next.
+    // ==========================================================================
+
     public SamsungWebSocket(String ip, int port, ConnectionListener listener) {
         this.ip       = ip;
         this.port     = port;
         this.listener = listener;
     }
 
+    // ==========================================================================
+    // SECTION: WEBSOCKET LIFECYCLE
+    // WHAT:  connect() opens the WebSocket to the TV and defines what happens
+    //        when the connection opens, when a message arrives, when it closes,
+    //        or when an error occurs.  sendOptionsRequest() sends the initial
+    //        handshake.  handleMessage() processes replies from the TV.
+    // ==========================================================================
+
+    /**
+     * Opens a WebSocket connection to the Samsung TV and starts listening
+     * for messages from it.
+     * Runs when the user selects this TV from the device list.
+     * INPUT:  Nothing (uses IP and port from the constructor).
+     * OUTPUT: Listener receives onConnected() when the WebSocket opens,
+     *         or onError() if the connection fails.
+     */
     public void connect() {
         try {
             // Include app name so the TV can identify us — same pattern as SamsungRemote.
@@ -74,7 +125,7 @@ public class SamsungWebSocket {
                 @Override
                 public void onError(Exception ex) {
                     Log.e(TAG, "WebSocket error", ex);
-                    if (listener != null) listener.onError(ex.getMessage());
+                    if (listener != null) listener.onError(ex.getMessage() != null ? ex.getMessage() : "WebSocket error");
                 }
             };
             client.connect();
@@ -84,6 +135,12 @@ public class SamsungWebSocket {
         }
     }
 
+    /**
+     * Sends an options-request handshake to the TV telling it "I am a remote".
+     * Runs right after the WebSocket opens (called from onOpen).
+     * INPUT:  Nothing (uses the open WebSocket client).
+     * OUTPUT: Sends a JSON message over the WebSocket; no return value.
+     */
     // Sends the channel-options handshake that lets the TV know we are a remote.
     // Does NOT send any key code.
     private void sendOptionsRequest() {
@@ -104,6 +161,14 @@ public class SamsungWebSocket {
         }
     }
 
+    /**
+     * Processes incoming messages from the TV over the WebSocket.
+     * Runs every time the TV sends a WebSocket message (called from onMessage).
+     * INPUT:  message — raw JSON string from the TV.
+     * OUTPUT: If the TV sends a pairing token, it stores the token and calls
+     *         confirmPairing().  If already paired, it marks the connection
+     *         as ready and notifies the listener.
+     */
     // N3: parse via JSONObject instead of fragile string-index arithmetic.
     private void handleMessage(String message) {
         try {
@@ -118,6 +183,7 @@ public class SamsungWebSocket {
                     Log.d(TAG, "Got pairing token: " + pairingToken);
                     if (listener != null) listener.onPairingRequired(pairingToken);
                     confirmPairing();
+                    if (listener != null) listener.onConnected();
                 } else {
                     // TV accepted us without requiring a new token — already paired.
                     isPaired = true;
@@ -131,14 +197,36 @@ public class SamsungWebSocket {
         }
     }
 
+    // ==========================================================================
+    // SECTION: COMMAND SENDING
+    // WHAT:  Sends a remote-control key press (e.g. POWER, VOLUME, HOME) to
+    //        the TV over the WebSocket.  Supports both short clicks and
+    //        long presses (hold-and-click).
+    // ==========================================================================
+
+    /**
+     * Sends a short press of a remote-control key to the TV.
+     * INPUT:  command — string name of the key (e.g. "KEY_POWER").
+     * OUTPUT: Nothing — sends JSON over the WebSocket.
+     */
     public void sendCommand(String command) {
+        sendCommand(command, false);
+    }
+
+    /**
+     * Sends a remote-control key press, optionally as a long press.
+     * INPUT:  command  — string name of the key (e.g. "KEY_VOLUMEUP").
+     *         longPress — true = hold the button down, false = short click.
+     * OUTPUT: Nothing — sends JSON over the WebSocket.
+     */
+    public void sendCommand(String command, boolean longPress) {
         if (client == null || !isConnected) {
             Log.w(TAG, "sendCommand: not connected");
             return;
         }
         try {
             JSONObject params = new JSONObject()
-                .put("Cmd",          "Click")
+                .put("Cmd",          longPress ? "Click&Hold" : "Click")
                 .put("DataOfCmd",    command)
                 .put("Option",       "false")
                 .put("TypeOfRemote", "SendRemoteKey");
@@ -148,14 +236,26 @@ public class SamsungWebSocket {
                 .put("params", params);
 
             client.send(msg.toString());
-            Log.d(TAG, "Sent: " + command);
+            Log.d(TAG, "Sent: " + command + (longPress ? " (long)" : ""));
         } catch (JSONException e) {
             Log.e(TAG, "sendCommand error", e);
         }
     }
 
+    // ==========================================================================
+    // SECTION: PAIRING
+    // WHAT:  Completes the pairing process by sending the token back to the
+    //        TV so it knows this remote is authorized.
+    // ==========================================================================
+
     // FIX (bug N2): confirmPairing no longer embeds KEY_POWER; it sends only
     // the RegisterDevice / emit message that carries the token back.
+    /**
+     * Sends the pairing token back to the TV to finish authorization.
+     * Runs after the TV sends a pairing token (in handleMessage).
+     * INPUT:  Nothing — uses the pairingToken field set by handleMessage.
+     * OUTPUT: Marks isPaired = true on success.
+     */
     public void confirmPairing() {
         if (client == null || pairingToken == null) return;
         try {
@@ -177,12 +277,26 @@ public class SamsungWebSocket {
         }
     }
 
+    // ==========================================================================
+    // SECTION: PUBLIC API
+    // WHAT:  Simple methods that let other parts of the app close the
+    //        connection or check whether it is connected / paired.
+    // ==========================================================================
+
+    /**
+     * Closes the WebSocket connection to the TV.
+     * INPUT:  Nothing.
+     * OUTPUT: Connection is closed; listener receives onDisconnected().
+     */
     public void disconnect() {
         if (client != null) {
             client.close();
         }
     }
 
+    /** Reports whether the WebSocket connection is currently open. */
     public boolean isConnected() { return isConnected; }
+
+    /** Reports whether the remote has been paired with the TV. */
     public boolean isPaired()    { return isPaired; }
 }

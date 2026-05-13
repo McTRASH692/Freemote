@@ -1,3 +1,11 @@
+// ============================================================================
+// FILE: build.gradle (root / project-level)
+// WHAT:  Root build configuration for the entire project. This file
+//        tells Android what build tools and plugins to use. It defines
+//        the Android Gradle Plugin version and the Protobuf plugin for
+//        compiling .proto files (used for communication with the TV).
+//        All sub-projects/modules inherit the repositories from here.
+// ============================================================================
 buildscript {
     repositories {
         google()

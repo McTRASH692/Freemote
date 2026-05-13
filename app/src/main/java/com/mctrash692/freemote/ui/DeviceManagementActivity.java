@@ -1,5 +1,13 @@
 package com.mctrash692.freemote.ui;
 
+// ============================================================================
+// FILE: DeviceManagementActivity.java
+// WHAT:  The Device List screen that shows all TVs you have paired with
+//        the app. From here you can tap a TV to edit its settings, delete
+//        a TV by pressing the delete icon, or add a new TV manually by
+//        typing its IP address and port number.
+// ============================================================================
+
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -22,6 +30,13 @@ import com.mctrash692.freemote.util.PairedDevicesManager;
 
 import java.util.List;
 
+// ==========================================================================
+// SECTION: DEVICE MANAGEMENT SCREEN
+// WHAT:  Shows all TVs you have paired with the app in a scrollable list.
+//        You can tap a TV to edit its settings, delete a TV using the
+//        delete button, or add a new TV manually by typing its info.
+// ==========================================================================
+
 public class DeviceManagementActivity extends BaseActivity {
     
     private PairedDevicesManager devicesManager;
@@ -29,6 +44,12 @@ public class DeviceManagementActivity extends BaseActivity {
     private DeviceAdapter adapter;
     private List<PairedDevice> devices;
     
+    // ==========================================================================
+    // SECTION: SCREEN SETUP
+    // WHAT:  Runs when the screen opens. Finds the list and buttons, then
+    //        loads all paired devices from storage.
+    // ==========================================================================
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,12 +64,26 @@ public class DeviceManagementActivity extends BaseActivity {
         loadDevices();
     }
     
+    // ==========================================================================
+    // METHOD: onResume
+    // WHAT:  Runs every time this screen becomes visible again (e.g., after
+    //        returning from the edit screen). Refreshes the device list
+    //        so any changes are shown immediately.
+    // ==========================================================================
+
     @Override
     protected void onResume() {
         super.onResume();
         loadDevices();
     }
     
+    // ==========================================================================
+    // METHOD: loadDevices
+    // WHAT:  Reads all paired devices from storage and shows them in the
+    //        list. If the list adapter hasn't been created yet, it creates
+    //        one. Otherwise it just updates the existing list.
+    // ==========================================================================
+
     private void loadDevices() {
         devices = devicesManager.getAllDevices();
         if (adapter == null) {
@@ -60,11 +95,24 @@ public class DeviceManagementActivity extends BaseActivity {
         }
     }
     
+    // ==========================================================================
+    // METHOD: addNewDevice
+    // WHAT:  Starts the process of adding a new TV manually. Opens a dialog
+    //        where you can type the TV's IP address, port, and a name.
+    // ==========================================================================
+
     private void addNewDevice() {
         // Open manual entry dialog (reuse from DeviceDiscoveryActivity)
         showManualEntryDialog();
     }
     
+    // ==========================================================================
+    // METHOD: showManualEntryDialog
+    // WHAT:  Shows a pop-up dialog with text fields for IP address, port
+    //        number, and an optional device name. When you tap "Add", it
+    //        validates the input and saves the new device.
+    // ==========================================================================
+
     private void showManualEntryDialog() {
         android.widget.LinearLayout layout = new android.widget.LinearLayout(this);
         layout.setOrientation(android.widget.LinearLayout.VERTICAL);
@@ -119,18 +167,32 @@ public class DeviceManagementActivity extends BaseActivity {
                 
                 devicesManager.saveDevice(device);
                 loadDevices();
-                Toast.makeText(this, "Device added", Toast.LENGTH_SHORT).show();
             })
             .setNegativeButton("Cancel", null)
             .show();
     }
     
+    // ==========================================================================
+    // METHOD: editDevice
+    // WHAT:  Opens the Edit Device screen for the given TV so you can
+    //        change its name, IP, type, and other settings.
+    // INPUT: device = the TV to edit
+    // ==========================================================================
+
     private void editDevice(PairedDevice device) {
         Intent intent = new Intent(this, DeviceEditActivity.class);
         intent.putExtra("device_id", device.getDeviceId());
         startActivity(intent);
     }
     
+    // ==========================================================================
+    // METHOD: deleteDevice
+    // WHAT:  Shows a confirmation dialog asking if you want to remove this
+    //        TV from your paired list. If you confirm, it deletes the
+    //        device and refreshes the list.
+    // INPUT: device = the TV to delete
+    // ==========================================================================
+
     private void deleteDevice(PairedDevice device) {
         new AlertDialog.Builder(this)
             .setTitle("Forget Device")
@@ -138,12 +200,18 @@ public class DeviceManagementActivity extends BaseActivity {
             .setPositiveButton("Forget", (d, w) -> {
                 devicesManager.removeDevice(device.getDeviceId());
                 loadDevices();
-                Toast.makeText(this, "Device removed", Toast.LENGTH_SHORT).show();
             })
             .setNegativeButton("Cancel", null)
             .show();
     }
     
+    // ==========================================================================
+    // SECTION: DEVICE LIST ADAPTER
+    // WHAT:  Converts the list of paired devices into row items that the
+    //        scrollable list can display. Each row shows the device name,
+    //        type, IP address, an icon, and a delete button.
+    // ==========================================================================
+
     private class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder> {
         private List<PairedDevice> devices;
         
@@ -151,6 +219,11 @@ public class DeviceManagementActivity extends BaseActivity {
             this.devices = devices;
         }
         
+        // ======================================================================
+        // METHOD: updateDevices
+        // WHAT:  Replaces the list of devices and refreshes the display.
+        // ======================================================================
+
         void updateDevices(List<PairedDevice> devices) {
             this.devices = devices;
             notifyDataSetChanged();
@@ -180,7 +253,7 @@ public class DeviceManagementActivity extends BaseActivity {
             return devices.size();
         }
         
-        class ViewHolder extends RecyclerView.ViewHolder {
+        static class ViewHolder extends RecyclerView.ViewHolder {
             TextView name, detail;
             ImageView icon;
             ImageButton btnDelete;
@@ -199,13 +272,21 @@ public class DeviceManagementActivity extends BaseActivity {
                 }
             }
             
+            // ==================================================================
+            // METHOD: setupDeleteButton
+            // WHAT:  Creates a delete button from scratch and adds it to the
+            //        device row, in case the layout doesn't already have one.
+            // ==================================================================
+
             private void setupDeleteButton(View v) {
                 btnDelete = new ImageButton(v.getContext());
                 btnDelete.setImageResource(android.R.drawable.ic_menu_delete);
                 btnDelete.setBackground(null);
                 btnDelete.setPadding(16, 16, 16, 16);
-                android.widget.LinearLayout parent = (android.widget.LinearLayout) v;
-                parent.addView(btnDelete);
+                if (v instanceof android.widget.LinearLayout) {
+                    android.widget.LinearLayout parent = (android.widget.LinearLayout) v;
+                    parent.addView(btnDelete);
+                }
             }
         }
     }
