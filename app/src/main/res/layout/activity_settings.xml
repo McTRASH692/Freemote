@@ -109,50 +109,6 @@
 
         </LinearLayout>
 
-        <!-- BLUETOOTH SECTION -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="CONNECTIVITY"
-            android:textColor="?attr/colorTextSecondary"
-            android:textSize="11sp"
-            android:letterSpacing="0.15"
-            android:layout_marginBottom="8dp" />
-
-        <LinearLayout
-            android:id="@+id/layoutBluetooth"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:background="@drawable/bg_button"
-            android:padding="12dp"
-            android:layout_marginBottom="24dp"
-            android:clickable="true"
-            android:focusable="true">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Bluetooth Remote"
-                android:textColor="?attr/colorTextPrimary" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Coming soon"
-                android:textColor="?attr/colorTextSecondary"
-                android:textSize="12sp"
-                android:layout_marginEnd="8dp" />
-
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_arrow_right"
-                android:alpha="0.6" />
-
-        </LinearLayout>
-
         <!-- ABOUT SECTION -->
         <TextView
             android:layout_width="match_parent"

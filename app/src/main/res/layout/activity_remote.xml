@@ -1,5 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- ============================================================================
+     FILE: activity_remote.xml
+     WHAT:  The main remote control screen layout. This defines all the buttons
+            and controls the user interacts with to control their TV:
+            - Power, Info, Guide, Menu buttons
+            - Volume controls (up/down/mute)
+            - Navigation: D-pad mode OR touchpad mode (switchable)
+            - Channel controls (up/down/entry)
+            - Back, Home, Source buttons
+            - App shortcut buttons (2 rows of 3)
+            - Apps, Cast, Keyboard utility buttons
+            - Media transport controls (play/pause, prev/next, rewind/FF)
+            - Hidden EditText for soft keyboard input
+     ============================================================================ -->
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/scrollViewRemote"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -12,21 +27,28 @@
         android:orientation="vertical"
         android:padding="12dp">
 
-        <!--
-            Hidden keyboard input — visibility="invisible" not alpha/gone.
-            Invisible views can receive focus; gone/alpha=0 cannot.
-        -->
+        <!-- ==================================================================
+             Hidden keyboard input field
+             WHAT:  An invisible text box that catches typed text from the
+                    soft keyboard. When the keyboard button is pressed, this
+                    field becomes visible and focused, the soft keyboard opens,
+                    and every keystroke is sent in real-time to the TV.
+             WHY:   Android requires a focused EditText to show the keyboard.
+                    We hide this one so it doesn't take up visual space.
+             ================================================================== -->
         <EditText
             android:id="@+id/hiddenKeyboardInput"
-            android:layout_width="1dp"
-            android:layout_height="1dp"
-            android:visibility="invisible"
-            android:inputType="textMultiLine"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:visibility="gone"
+            android:inputType="textNoSuggestions|textVisiblePassword"
             android:imeOptions="flagNoExtractUi|flagNoFullscreen"
             android:background="@null"
             android:textSize="1sp" />
 
-        <!-- Row 1: Power | Device Name & Status | Settings -->
+        <!-- ==================================================================
+             Row 1: Power | Device Name & Status | Settings
+             ================================================================== -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -83,7 +105,9 @@
 
         </LinearLayout>
 
-        <!-- Row 2: Info | Guide | Menu -->
+        <!-- ==================================================================
+             Row 2: Info | Guide | Menu
+             ================================================================== -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -124,7 +148,13 @@
 
         </LinearLayout>
 
-        <!-- Nav Zone: Vol | D-pad/Touchpad | CH -->
+        <!-- ==================================================================
+             Nav Zone: Vol | D-pad/Touchpad/Media | CH
+             The center area switches between D-pad, Touchpad, and Media
+             control modes. The three panels (layoutDpadPanel, layoutTouchPanel,
+             layoutMediaPanel) are stacked in a FrameLayout and each is shown
+             or hidden depending on the current mode.
+             ================================================================== -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -134,65 +164,157 @@
             android:gravity="center_vertical"
             android:layout_marginBottom="8dp">
 
-            <!-- Vol column -->
-            <LinearLayout
+            <!-- Left column: Volume (dpad/media) / Mouse buttons (touchpad) -->
+            <FrameLayout
+                android:id="@+id/layoutLeftSide"
                 android:layout_width="52dp"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:gravity="center">
+                android:layout_height="match_parent">
 
-                <ImageButton
-                    android:id="@+id/btnVolUp"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:background="@drawable/bg_button"
-                    android:src="@drawable/ic_volume_2"
-                    android:padding="10dp"
-                    android:contentDescription="Volume Up"
-                    android:layout_marginBottom="4dp" />
+                <!-- Volume buttons: Vol Up | Vol Down | Mute -->
+                <LinearLayout
+                    android:id="@+id/layoutVolColumn"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:gravity="center_horizontal"
+                    android:visibility="visible">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="VOL"
-                    android:textColor="?attr/colorTextSecondary"
-                    android:textSize="9sp"
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1" />
+
+                    <ImageButton
+                        android:id="@+id/btnVolUp"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:background="@drawable/bg_button"
+                        android:src="@drawable/ic_volume_2"
+                        android:padding="10dp"
+                        android:contentDescription="Volume Up" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="VOL"
+                        android:textColor="?attr/colorTextSecondary"
+                        android:textSize="9sp"
+                        android:textStyle="bold"
+                        android:gravity="center" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1" />
+
+                    <ImageButton
+                        android:id="@+id/btnVolDown"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:background="@drawable/bg_button"
+                        android:src="@drawable/ic_volume_1"
+                        android:padding="10dp"
+                        android:contentDescription="Volume Down" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1" />
+
+                    <ImageButton
+                        android:id="@+id/btnMute"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:background="@drawable/bg_button"
+                        android:src="@drawable/ic_volume_x"
+                        android:padding="10dp"
+                        android:contentDescription="Mute" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1" />
+
+                </LinearLayout>                <!-- Mouse buttons: R | M | L (shown in touchpad mode) -->
+                <LinearLayout
+                    android:id="@+id/layoutMouseColumn"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
                     android:gravity="center"
-                    android:layout_marginBottom="4dp" />
+                    android:visibility="gone">
 
-                <ImageButton
-                    android:id="@+id/btnVolDown"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:background="@drawable/bg_button"
-                    android:src="@drawable/ic_volume_1"
-                    android:padding="10dp"
-                    android:contentDescription="Volume Down"
-                    android:layout_marginBottom="4dp" />
+                    <Button
+                        android:id="@+id/btnRightClick"
+                        android:layout_width="48dp"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_button_outline"
+                        android:text="R"
+                        android:textColor="?attr/colorButtonIcon"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:gravity="center"
+                        android:layout_marginBottom="3dp"
+                        app:backgroundTint="@null" />
 
-                <ImageButton
-                    android:id="@+id/btnMute"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:background="@drawable/bg_button"
-                    android:src="@drawable/ic_volume_x"
-                    android:padding="10dp"
-                    android:contentDescription="Mute" />
+                    <Button
+                        android:id="@+id/btnMiddleClick"
+                        android:layout_width="48dp"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_button_outline"
+                        android:text="M"
+                        android:textColor="?attr/colorButtonIcon"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:gravity="center"
+                        android:layout_marginBottom="3dp"
+                        app:backgroundTint="@null" />
 
-            </LinearLayout>
+                    <Button
+                        android:id="@+id/btnLeftClick"
+                        android:layout_width="48dp"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_button_outline"
+                        android:text="L"
+                        android:textColor="?attr/colorButtonIcon"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:gravity="center"
+                        app:backgroundTint="@null" />
 
-            <!-- D-pad / Touchpad zone -->
+                </LinearLayout>
+
+            </FrameLayout>
+
+            <!-- ==============================================================
+                 Center zone: switches between D-pad, Touchpad, Media panels
+                 ============================================================== -->
             <FrameLayout
                 android:layout_width="0dp"
                 android:layout_height="260dp"
                 android:layout_weight="1"
                 android:layout_marginHorizontal="8dp">
 
+                <!-- D-pad panel (shown in D-pad navigation mode) -->
                 <RelativeLayout
-                    android:id="@+id/layoutDpad"
+                    android:id="@+id/layoutDpadPanel"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:visibility="visible">
+
+                    <!-- D-pad content — directional buttons + OK -->
+                    <RelativeLayout
+                        android:id="@+id/layoutDpad"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
 
                     <ImageButton
                         android:id="@+id/btnDpadUp"
@@ -238,90 +360,358 @@
                         android:padding="12dp"
                         android:contentDescription="Right" />
 
-                    <ImageButton
-                        android:id="@+id/btnOk"
-                        android:layout_width="64dp"
-                        android:layout_height="64dp"
-                        android:layout_centerInParent="true"
-                        android:background="@drawable/bg_touchpad"
-                        android:src="@drawable/ic_circle_dot"
-                        android:padding="20dp"
-                        android:contentDescription="OK" />
+                        <ImageButton
+                            android:id="@+id/btnOk"
+                            android:layout_width="64dp"
+                            android:layout_height="64dp"
+                            android:layout_centerInParent="true"
+                            android:background="@drawable/bg_touchpad"
+                            android:src="@drawable/ic_circle_dot"
+                            android:padding="20dp"
+                            android:contentDescription="OK" />
 
-                </RelativeLayout>
+                    </RelativeLayout><!-- /layoutDpad -->
 
+                </RelativeLayout><!-- /layoutDpadPanel -->
+
+                <!-- Touchpad panel (shown in touchpad navigation mode) -->
                 <FrameLayout
-                    android:id="@+id/layoutTouchpad"
+                    android:id="@+id/layoutTouchPanel"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:visibility="gone"
-                    android:background="@drawable/bg_touchpad"
-                    android:clickable="true"
-                    android:focusable="true">
+                    android:visibility="gone">
+
+                    <!-- Touchpad content — area that detects finger movement -->
+                    <FrameLayout
+                        android:id="@+id/layoutTouchpad"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+                        <FrameLayout
+                            android:id="@+id/layoutTouchpadAlt"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@drawable/bg_touchpad"
+                            android:clickable="true"
+                            android:focusable="true">
+
+                            <TextView
+                                android:id="@+id/lblSwipeToMove"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:text="Swipe to move&#10;Two fingers to scroll&#10;Tap to click"
+                                android:textColor="?attr/colorButtonIcon"
+                                android:textSize="12sp"
+                                android:gravity="center" />
+
+                        </FrameLayout><!-- /layoutTouchpadAlt -->
+
+                </FrameLayout><!-- /layoutTouchpad -->
+
+                </FrameLayout><!-- /layoutTouchPanel -->
+
+                <!-- Media panel (fills full nav zone when side columns hidden) -->
+                <LinearLayout
+                    android:id="@+id/layoutMediaPanel"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:visibility="gone">
+
+                    <!-- Row 1: RW | Prev | (gap) | Next | FF -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="0.6"
+                        android:orientation="horizontal"
+                        android:gravity="center">
+
+                        <ImageButton
+                            android:id="@+id/btnMediaRW"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:background="@drawable/bg_button"
+                            android:src="@drawable/ic_rewind"
+                            android:padding="10dp"
+                            android:contentDescription="Rewind"
+                            android:layout_marginEnd="3dp" />
+
+                        <Button
+                            android:id="@+id/btnMediaPrev"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:background="@drawable/bg_button"
+                            android:text="⏮"
+                            android:textColor="?attr/colorButtonIcon"
+                            android:textSize="18sp"
+                            android:gravity="center"
+                            android:layout_marginEnd="3dp"
+                            app:backgroundTint="@null" />
+
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1" />
+
+                        <Button
+                            android:id="@+id/btnMediaNext"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:background="@drawable/bg_button"
+                            android:text="⏭"
+                            android:textColor="?attr/colorButtonIcon"
+                            android:textSize="18sp"
+                            android:gravity="center"
+                            android:layout_marginStart="3dp"
+                            app:backgroundTint="@null" />
+
+                        <ImageButton
+                            android:id="@+id/btnMediaFF"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:background="@drawable/bg_button"
+                            android:src="@drawable/ic_fast_forward"
+                            android:padding="10dp"
+                            android:contentDescription="Fast Forward"
+                            android:layout_marginStart="3dp" />
+
+                    </LinearLayout>
+
+                    <!-- Row 2: Large centered Play/Pause -->
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1.5"
+                        android:gravity="center">
+
+                        <ImageButton
+                            android:id="@+id/btnMediaPlayPause"
+                            android:layout_width="88dp"
+                            android:layout_height="88dp"
+                            android:background="@drawable/bg_button_outline"
+                            android:src="@drawable/ic_play_pause"
+                            android:padding="18dp"
+                            android:contentDescription="Play/Pause"
+                            android:layout_gravity="center" />
+
+                    </FrameLayout>
+
+                    <!-- Row 3: Vol- | Mute | Vol+ -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="0.6"
+                        android:orientation="horizontal"
+                        android:gravity="center">
+
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1" />
+
+                        <ImageButton
+                            android:id="@+id/btnMediaVolDown"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="2"
+                            android:background="@drawable/bg_button"
+                            android:src="@drawable/ic_volume_1"
+                            android:padding="10dp"
+                            android:contentDescription="Volume Down" />
+
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1" />
+
+                        <ImageButton
+                            android:id="@+id/btnMediaMute"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="2"
+                            android:background="@drawable/bg_button"
+                            android:src="@drawable/ic_volume_x"
+                            android:padding="10dp"
+                            android:contentDescription="Mute" />
+
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1" />
+
+                        <ImageButton
+                            android:id="@+id/btnMediaVolUp"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="2"
+                            android:background="@drawable/bg_button"
+                            android:src="@drawable/ic_volume_2"
+                            android:padding="10dp"
+                            android:contentDescription="Volume Up" />
+
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </FrameLayout>
+
+            <!-- Right column: Channel (dpad/media) / Scroll bar (touchpad) -->
+            <FrameLayout
+                android:id="@+id/layoutRightSide"
+                android:layout_width="52dp"
+                android:layout_height="match_parent">
+
+                <!-- Channel buttons: Ch Up | Ch Down | Ch Entry -->
+                <LinearLayout
+                    android:id="@+id/layoutChColumn"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:gravity="center_horizontal"
+                    android:visibility="visible">
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1" />
+
+                    <ImageButton
+                        android:id="@+id/btnChUp"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:background="@drawable/bg_button"
+                        android:src="@drawable/ic_arrow_up"
+                        android:padding="10dp"
+                        android:contentDescription="Channel Up" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:text="Swipe to move&#10;Two fingers to scroll&#10;Tap to click"
-                        android:textColor="?attr/colorTouchpadText"
-                        android:textSize="12sp"
+                        android:text="CH"
+                        android:textColor="?attr/colorTextSecondary"
+                        android:textSize="9sp"
+                        android:textStyle="bold"
                         android:gravity="center" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1" />
+
+                    <ImageButton
+                        android:id="@+id/btnChDown"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:background="@drawable/bg_button"
+                        android:src="@drawable/ic_arrow_down"
+                        android:padding="10dp"
+                        android:contentDescription="Channel Down" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1" />
+
+                    <FrameLayout
+                        android:id="@+id/btnChEntry"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:background="@drawable/bg_button"
+                        android:contentDescription="Channel Entry">
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:orientation="vertical"
+                            android:gravity="center">
+
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="1"
+                                    android:textColor="?attr/colorButtonIcon"
+                                    android:textSize="10sp"
+                                    android:textStyle="bold"
+                                    android:gravity="center"
+                                    android:layout_marginEnd="3dp" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="2"
+                                    android:textColor="?attr/colorButtonIcon"
+                                    android:textSize="10sp"
+                                    android:textStyle="bold"
+                                    android:gravity="center" />
+
+                            </LinearLayout>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="3"
+                                android:textColor="?attr/colorButtonIcon"
+                                android:textSize="10sp"
+                                android:textStyle="bold"
+                                android:gravity="center" />
+
+                        </LinearLayout>
+
+                    </FrameLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1" />
+
+                </LinearLayout>
+
+                <!-- Scroll bar (shown in touchpad mode) -->
+                <FrameLayout
+                    android:id="@+id/layoutScrollColumn"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/bg_button"
+                    android:visibility="gone">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_scroll"
+                        android:contentDescription="Scroll" />
 
                 </FrameLayout>
 
             </FrameLayout>
 
-            <!-- CH column -->
-            <LinearLayout
-                android:layout_width="52dp"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:gravity="center">
-
-                <ImageButton
-                    android:id="@+id/btnChUp"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:background="@drawable/bg_button"
-                    android:src="@drawable/ic_arrow_up"
-                    android:padding="10dp"
-                    android:contentDescription="Channel Up"
-                    android:layout_marginBottom="4dp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="CH"
-                    android:textColor="?attr/colorTextSecondary"
-                    android:textSize="9sp"
-                    android:gravity="center"
-                    android:layout_marginBottom="4dp" />
-
-                <ImageButton
-                    android:id="@+id/btnChDown"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:background="@drawable/bg_button"
-                    android:src="@drawable/ic_arrow_down"
-                    android:padding="10dp"
-                    android:contentDescription="Channel Down"
-                    android:layout_marginBottom="4dp" />
-
-                <ImageButton
-                    android:id="@+id/btnToggleNavMode"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:background="@drawable/bg_button"
-                    android:src="@drawable/ic_tv_minimal"
-                    android:padding="10dp"
-                    android:contentDescription="Toggle nav mode" />
-
-            </LinearLayout>
-
         </LinearLayout>
 
-        <!-- Row 3: Back | Home | Source -->
+        <!-- ==================================================================
+             Row 3: Back | Home | Source
+             ================================================================== -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -362,7 +752,9 @@
 
         </LinearLayout>
 
-        <!-- App Shortcuts: 2 rows of 3 -->
+        <!-- ==================================================================
+             App Shortcuts: 2 rows of 3
+             ================================================================== -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -380,20 +772,21 @@
                     android:layout_weight="1" android:background="@drawable/bg_button"
                     android:src="@drawable/youtube" android:padding="8dp"
                     android:scaleType="fitCenter" android:contentDescription="Shortcut 1"
-                    android:layout_marginEnd="6dp" />
+                    android:tint="@null" android:layout_marginEnd="6dp" />
 
                 <ImageButton android:id="@+id/btnShortcut2"
                     android:layout_width="0dp" android:layout_height="52dp"
                     android:layout_weight="1" android:background="@drawable/bg_button"
                     android:src="@drawable/primevideo" android:padding="8dp"
                     android:scaleType="fitCenter" android:contentDescription="Shortcut 2"
-                    android:layout_marginEnd="6dp" />
+                    android:tint="@null" android:layout_marginEnd="6dp" />
 
                 <ImageButton android:id="@+id/btnShortcut3"
                     android:layout_width="0dp" android:layout_height="52dp"
                     android:layout_weight="1" android:background="@drawable/bg_button"
                     android:src="@drawable/netflix" android:padding="8dp"
-                    android:scaleType="fitCenter" android:contentDescription="Shortcut 3" />
+                    android:scaleType="fitCenter" android:contentDescription="Shortcut 3"
+                    android:tint="@null" />
 
             </LinearLayout>
 
@@ -407,20 +800,21 @@
                     android:layout_weight="1" android:background="@drawable/bg_button"
                     android:src="@drawable/disneyplus" android:padding="8dp"
                     android:scaleType="fitCenter" android:contentDescription="Shortcut 4"
-                    android:layout_marginEnd="6dp" />
+                    android:tint="@null" android:layout_marginEnd="6dp" />
 
                 <ImageButton android:id="@+id/btnShortcut5"
                     android:layout_width="0dp" android:layout_height="52dp"
                     android:layout_weight="1" android:background="@drawable/bg_button"
                     android:src="@drawable/plex" android:padding="8dp"
                     android:scaleType="fitCenter" android:contentDescription="Shortcut 5"
-                    android:layout_marginEnd="6dp" />
+                    android:tint="@null" android:layout_marginEnd="6dp" />
 
                 <ImageButton android:id="@+id/btnShortcut6"
                     android:layout_width="0dp" android:layout_height="52dp"
                     android:layout_weight="1" android:background="@drawable/bg_button"
                     android:src="@drawable/kodi" android:padding="8dp"
-                    android:scaleType="fitCenter" android:contentDescription="Shortcut 6" />
+                    android:scaleType="fitCenter" android:contentDescription="Shortcut 6"
+                    android:tint="@null" />
 
             </LinearLayout>
 
@@ -434,7 +828,9 @@
             android:layout_marginBottom="8dp"
             android:alpha="0.4" />
 
-        <!-- Utility Row A: Apps | Cast | Keyboard -->
+        <!-- ==================================================================
+             Utility Row A: Apps | Cast | Keyboard
+             ================================================================== -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -446,25 +842,27 @@
                 android:layout_width="0dp" android:layout_height="48dp"
                 android:layout_weight="1" android:background="@drawable/bg_button"
                 android:src="@drawable/ic_grid_2x2" android:padding="10dp"
-                android:contentDescription="Apps" android:layout_marginEnd="6dp" />
+                android:contentDescription="Apps" android:layout_marginEnd="3dp" />
 
             <ImageButton
                 android:id="@+id/btnCast"
                 android:layout_width="0dp" android:layout_height="48dp"
                 android:layout_weight="1" android:background="@drawable/bg_button"
                 android:src="@drawable/ic_cast" android:padding="10dp"
-                android:contentDescription="Cast" android:layout_marginEnd="6dp" />
+                android:contentDescription="Cast" android:layout_marginHorizontal="3dp" />
 
             <ImageButton
                 android:id="@+id/btnKeyboard"
                 android:layout_width="0dp" android:layout_height="48dp"
                 android:layout_weight="1" android:background="@drawable/bg_button"
                 android:src="@drawable/ic_keyboard" android:padding="10dp"
-                android:contentDescription="Keyboard" />
+                android:contentDescription="Keyboard" android:layout_marginHorizontal="3dp" />
 
         </LinearLayout>
 
-        <!-- Utility Row B: Number Pad | Voice | (spare - no duplicate ID) -->
+        <!-- ==================================================================
+             Utility Row B: Media | Voice | Toggle Nav Mode
+             ================================================================== -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -472,27 +870,38 @@
             android:layout_marginBottom="4dp">
 
             <ImageButton
-                android:id="@+id/btnNumberPad"
+                android:id="@+id/btnMediaToggle"
                 android:layout_width="0dp" android:layout_height="48dp"
                 android:layout_weight="1" android:background="@drawable/bg_button"
-                android:src="@drawable/ic_tv_minimal" android:padding="10dp"
-                android:contentDescription="Number Pad" android:layout_marginEnd="6dp" />
+                android:src="@drawable/ic_play_pause" android:padding="10dp"
+                android:contentDescription="Media" android:layout_marginEnd="3dp" />
 
             <ImageButton
                 android:id="@+id/btnVoice"
                 android:layout_width="0dp" android:layout_height="48dp"
                 android:layout_weight="1" android:background="@drawable/bg_button"
                 android:src="@drawable/ic_mic" android:padding="10dp"
-                android:contentDescription="Voice Command" android:layout_marginEnd="6dp" />
+                android:contentDescription="Voice Command" android:layout_marginHorizontal="3dp" />
 
             <ImageButton
-                android:id="@+id/btnToggleVolume"
+                android:id="@+id/btnToggleNavMode"
                 android:layout_width="0dp" android:layout_height="48dp"
                 android:layout_weight="1" android:background="@drawable/bg_button"
-                android:src="@drawable/ic_volume_2" android:padding="10dp"
-                android:contentDescription="Toggle Volume" />
+                android:src="@drawable/ic_tv_minimal" android:padding="10dp"
+                android:contentDescription="Toggle Nav Mode" android:layout_marginStart="3dp" />
 
         </LinearLayout>
+
+        <!-- ==================================================================
+             Scroll strip area (for touchpad scroll two-finger gesture)
+             ================================================================== -->
+        <View
+            android:id="@+id/scrollStrip"
+            android:layout_width="match_parent"
+            android:layout_height="4dp"
+            android:background="?attr/colorDivider"
+            android:layout_marginTop="4dp"
+            android:visibility="gone" />
 
     </LinearLayout>
 </ScrollView>
